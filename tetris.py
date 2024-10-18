@@ -1,5 +1,6 @@
 import random
-
+import cv2 as cv
+import numpy as np
 
 class Tetris:
     BOARD_WIDHT = 10
@@ -54,17 +55,43 @@ class Tetris:
     }
 
 
-def __init__(self):
-    self.start()
+    def __init__(self):
+        self.start()
 
 
-def start(self):
-    '''Starts the game'''
-    self.board = [[0] * Tetris.BOARD_WIDTH for _ in range(Tetris.BOARD_HEIGHT)]
-    self.score = 0
-    self.tetromino_pool = self.bag = list(range(len(Tetris.TETROMINOS)))
-    random.shuffle(self.tetromino_pool)
-    self.next_piece = self.pool.pop()
-    self.next_move()
+    def start(self):
+        '''Starts the game'''
+        self.board = [[0] * Tetris.BOARD_WIDTH for _ in range(Tetris.BOARD_HEIGHT)]
+        self.score = 0
+        self.tetromino_pool = self.bag = list(range(len(Tetris.TETROMINOS)))
+        random.shuffle(self.tetromino_pool)
+        self.next_piece = self.pool.pop()
+        self.next_move()
 
-  def next_move(self):
+    def next_move(self):
+        pass
+  
+    # 
+    def get_score(self):
+      """Summary or Description of the Function
+      """
+      
+      return self.score
+    
+  
+    def calculate_bumpiness(self):
+        """Returns the bumpiness of a grid. The bumpiness of two columns is defined to be the variation between adjacent column heights."""
+        
+        bumpiness = 0
+        
+        # Initiaize empty array that calculates the height of each column of the grid
+        col_height = []
+
+        for col in range(Tetris.BOARD_WIDHT):
+            col_height[col] = 0
+
+        for idx in range(Tetris.BOARD_HEIGHT):
+            for jdx in range(Tetris.BOARD_WIDHT):
+                continue
+
+        pass
