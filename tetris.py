@@ -86,19 +86,6 @@ class Tetris:
                 return True
         return False
 
-    def clean_rows(self):
-        '''Updates the board based on the number of full rows. Returns the number of full rows.'''
-        # Finds all the rows that are full
-        full_rows = [index for index, row in enumerate(
-            self.board) if np.all(row)]
-
-        # Remove full rows and shift the rest down
-        for row_index in full_rows:
-            self.board = np.delete(self.board, row_index, axis=0)
-            new_row = np.zeros((1, Tetris.BOARD_WIDTH), dtype=int)
-            self.board = np.vstack([new_row, self.board])
-        return len(full_rows)
-
     def update_score(self):
         '''Updates the score based on the number of full rows'''
         full_rows = self.clean_rows()
@@ -148,20 +135,6 @@ class Tetris:
         '''Prints the board'''
         print(self.board)
 
-    def aggregated_height(self):
-        ''' Computes the aggregated height and returns it '''
-        heights = []
-        for col in range(Tetris.BOARD_WIDTH):
-            column_tiles = self.board[:, col]
-            non_zero = np.where(column_tiles > 0)[0]
-            if len(non_zero) > 0:
-                height = Tetris.BOARD_HEIGHT - non_zero[0]
-            else:
-                height = 0
-            heights.append(height)
-
-        return sum(heights)
-
     # STATISTICS #
 
     def calculate_bumpiness(self, board):
@@ -204,6 +177,33 @@ class Tetris:
         print(col_holes)
         holes = sum(col_holes)
         return holes
+
+    def clean_rows(self):
+        '''Updates the board based on the number of full rows. Returns the number of full rows.'''
+        # Finds all the rows that are full
+        full_rows = [index for index, row in enumerate(
+            self.board) if np.all(row)]
+
+        # Remove full rows and shift the rest down
+        for row_index in full_rows:
+            self.board = np.delete(self.board, row_index, axis=0)
+            new_row = np.zeros((1, Tetris.BOARD_WIDTH), dtype=int)
+            self.board = np.vstack([new_row, self.board])
+        return len(full_rows)
+
+    def aggregated_height(self):
+        ''' Computes the aggregated height and returns it '''
+        heights = []
+        for col in range(Tetris.BOARD_WIDTH):
+            column_tiles = self.board[:, col]
+            non_zero = np.where(column_tiles > 0)[0]
+            if len(non_zero) > 0:
+                height = Tetris.BOARD_HEIGHT - non_zero[0]
+            else:
+                height = 0
+            heights.append(height)
+
+        return sum(heights)
 
 
 # Test Functionally
