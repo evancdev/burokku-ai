@@ -1,5 +1,6 @@
 import random
 import numpy as np
+from time import sleep
 
 
 class Tetris:
@@ -33,15 +34,16 @@ class Tetris:
         random.shuffle(self.tetromino_pool)
         self.next_piece = self.tetromino_pool.pop()
         self.curr_piece = self.next_piece
+        self.curr_pos = [3, 0]
         self.game_over = False
-        self.next_move()
+        self.next()
 
     def get_score(self):
         '''Returns the current score'''
         return self.score
 
-    def next_move(self):
-        '''Player plays the next move'''
+    def next(self):
+        '''Updates the next_piece for the next move'''
         if len(self.tetromino_pool) == 0:
             self.tetromino_pool = self.bag = list(
                 range(len(Tetris.TETROMINOS)))
@@ -61,7 +63,25 @@ class Tetris:
             self.next_piece = self.pool.pop()
             self.can_hold = False
 
-    def check_game(self):
-        '''Checks if the game is over. Returns T when the game is over.'''
+    def check_collision(self, curr_piece, curr_pos):
+        return
 
-    def play(self, render=False):
+    def play(self, x_pos, render=False, delay=None):
+        self.curr_pos = [x_pos, 0]
+
+        # Drops the current tetromino while checking for collision
+        while not self.check_collision(self.curr_piece, self.curr_pos):
+            if render:
+                self.render()
+                if delay:
+                    sleep(delay)
+                self.curr_pos[1] += 1
+        self.curr_pos[1] -= 1
+
+        # TODO: Update board and scores
+
+        # TODO: Start next round
+
+    # TODO: Render the game
+    def render():
+        return
