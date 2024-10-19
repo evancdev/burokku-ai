@@ -68,8 +68,8 @@ class Tetris:
         while not self.check_collision(self.curr_piece, self.curr_pos):
             if render:
                 self.render()
-                if delay:
-                    sleep(delay)
+                # if delay:
+                # sleep(delay)
                 self.curr_pos[1] += 1
         self.curr_pos[1] -= 1
 
@@ -103,7 +103,13 @@ class Tetris:
     def add_piece(self, piece, pos):
         board = self.board.copy()
         for x, y in piece:
-            board[(y + pos[1], x + pos[0])] = 1
+            # Calculate the absolute position on the board
+            board_x = x + pos[0]
+            board_y = y + pos[1]
+
+            # Check that the position is within bounds of the board
+            if 0 <= board_x < Tetris.BOARD_WIDTH and 0 <= board_y < Tetris.BOARD_HEIGHT:
+                board[board_y, board_x] = 1
         self.board = board
 
     def render(self):
