@@ -4,6 +4,7 @@ import numpy as np
 from PIL import Image
 from time import sleep
 
+
 class Tetris:
     BOARD_WIDTH = 10
     BOARD_HEIGHT = 20
@@ -26,11 +27,12 @@ class Tetris:
 
     COLORS = {
         0: (0, 0, 0),       # Empty (black)
-        1: (255, 255, 255), # Filled (white)
+        1: (255, 255, 255),  # Filled (white)
     }
 
     def __init__(self):
-        self.board = np.zeros((Tetris.BOARD_HEIGHT, Tetris.BOARD_WIDTH), dtype=int)
+        self.board = np.zeros(
+            (Tetris.BOARD_HEIGHT, Tetris.BOARD_WIDTH), dtype=int)
         # self.board = np.array([[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         #                        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         #                        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -61,7 +63,7 @@ class Tetris:
         self.curr_piece = self.next_piece
 
         self.curr_pos = [3, 0]  # Start near the top center
-        
+
         self.game_over = False
         self.spawn_piece()
 
@@ -77,14 +79,9 @@ class Tetris:
 
         self.curr_pos = [3, 0]
 
-
-        # Check game over condition
-        if self.check_collision(self.curr_piece, self.curr_pos):
-            self.game_over = True
-
     def rotate_piece(self):
         '''Rotates the current piece 90 degrees counterclockwise'''
-        
+
         rotated_piece = np.rot90(self.curr_piece)
 
         if not self.check_collision(rotated_piece, self.curr_pos):
@@ -92,7 +89,7 @@ class Tetris:
 
     def play(self, x_pos, render=False, delay=None):
         '''Handles the game logic for placing pieces'''
-        
+
         self.curr_pos = [x_pos, 0]
 
         # Drop the Tetromino gradually until it collides
@@ -110,17 +107,16 @@ class Tetris:
 
         # Place the piece on the board
         self.board = self.add_piece(self.curr_piece, self.curr_pos)
-        
+
         # Update the score based on cleared rows
         self.update_score()
-        
+
         # Spawn the next piece
         self.spawn_piece()
 
-
     def check_collision(self, piece, pos):
         '''Checks for collisions with the board boundaries and other blocks'''
-        
+
         piece_height, piece_width = piece.shape
         for i in range(piece_height):
             for j in range(piece_width):
@@ -133,20 +129,24 @@ class Tetris:
                             or board_y >= Tetris.BOARD_HEIGHT:  # Ignore pieces above the top row (y < 0)
                         return True
                     elif board_y >= 0 and self.board[board_y, board_x] == 1:
-                        print("yo")  # Collision in visible board area
                         return True
-                    
+
         return False
 
     def add_piece(self, piece, pos):
         '''Adds the piece to the board at the given position'''
-        
+
         piece_height, piece_width = piece.shape
         board = self.board.copy()
         for i in range(piece_height):
             for j in range(piece_width):
                 if piece[i, j] == 1:
                     board[pos[1] + i, pos[0] + j] = 1
+
+        # Check game over condition
+        if self.check_collision(self.curr_piece, self.curr_pos):
+            self.game_over = True
+
         return board
 
     def update_score(self):
@@ -168,7 +168,7 @@ class Tetris:
         '''Renders the current game board'''
         # Copy the current board and overlay the falling Tetromino on top of it
         board_copy = self.board.copy()
-        
+
         piece_height, piece_width = self.curr_piece.shape
         for i in range(piece_height):
             for j in range(piece_width):
@@ -179,18 +179,20 @@ class Tetris:
                         board_copy[y, x] = 1  # Overlay the falling Tetromino
 
         # Convert the board into an image for display
-        img = np.array([[Tetris.COLORS[cell] for cell in row] for row in board_copy], dtype=np.uint8)
-        img = Image.fromarray(img, 'RGB').resize((Tetris.BOARD_WIDTH * 25, Tetris.BOARD_HEIGHT * 25), Image.NEAREST)
+        img = np.array([[Tetris.COLORS[cell] for cell in row]
+                       for row in board_copy], dtype=np.uint8)
+        img = Image.fromarray(img, 'RGB').resize(
+            (Tetris.BOARD_WIDTH * 25, Tetris.BOARD_HEIGHT * 25), Image.NEAREST)
 
         # Show the game using OpenCV
         cv2.imshow('Tetris', np.array(img))
         cv2.waitKey(1)
-    
+
     # TESTING
 
     def set_curr(self, tetromino):
         '''Sets the current piece to tetromino. Used for debugging'''
-        
+
         self.curr_piece = Tetris.TETROMINOS[tetromino]
 
     # STATISTICS
@@ -214,7 +216,7 @@ class Tetris:
         # print(col_holes)
         holes = sum(col_holes)
         return holes
-    
+
     def calculate_aggregated_height(self):
         ''' Computes the aggregated height and returns it.'''
         heights = []
@@ -250,17 +252,18 @@ class Tetris:
 
         return bumpiness
 
+
 # Testing
 if __name__ == "__main__":
     game = Tetris()
 
-    game.play(0, render = True)
-
-    while not  game.game_over:
-        game.play(0, render = True)
+    game.play(0, render=True)
 
     # while not game.game_over:
-    #     game.play(random.randint(0, 6), render=True)
-    # print(game.board)
-    # print(game.calculate_bumpiness(game.board))
+    #     game.play(0, render=True)
+
+    while not game.game_over:
+        game.play(random.randint(0, 6), render=True)
+    print(game.board)
+    print(game.calculate_bumpiness(game.board))
     print("Game Over. Final Score:", game.score)
