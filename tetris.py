@@ -47,9 +47,9 @@ class Tetris:
         self.next_piece = Tetris.TETROMINOS[self.tetromino_pool.pop()]
         self.curr_piece = self.next_piece
 
-    def rotate(tetromino):
+    def rotate(self):
         '''Rotates the currect tetromino'''
-        return [(-y, x) for x, y in tetromino]
+        self.curr_piece = [(-y, x) for x, y in self.curr_piece]
 
     def hold(self):
         '''Holds the current tetromino'''
@@ -85,6 +85,7 @@ class Tetris:
             if (x < 0 or x >= Tetris.BOARD_WIDTH or y >= Tetris.BOARD_HEIGHT or (y >= 0 and self.board[y, x] == 1)):
                 return True
         return False
+
     def get_board(self):
         '''Returns the current board'''
         piece = [np.add(x, self.curr_pos) for x in self.curr_piece]
@@ -92,13 +93,12 @@ class Tetris:
         for x, y in piece:
             board[y, x] = 1
         return board
-    
+
     def add_piece(self, piece, pos):
         board = self.board.copy()
         for x, y in piece:
             board[(y + pos[1], x + pos[0])] = 1
         return board
-            
 
     def render(self):
         '''Renders the current board'''
@@ -113,15 +113,12 @@ class Tetris:
         cv2.imshow('image', np.array(img))
         cv2.waitKey(1)
 
-    def sc(self, tetro):
-        self.curr_piece = Tetris.TETROMINOS[tetro]
+    def set_curr(self, tetromino):
+        # Sets the current piece to tetromino. Used for debugging
+        self.curr_piece = Tetris.TETROMINOS[tetromino]
+
 
 # Test Functionally
 if __name__ == "__main__":
     game = Tetris()
-    game.sc(1)
-    game.play(3, True, delay=0.1)
-    game.sc(4)
-    game.play(3, True, delay=0.1)
-    game.play(3, True, delay=0.1)
-
+    game.play(3, True, delay=0.001)
