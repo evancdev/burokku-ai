@@ -162,6 +162,49 @@ class Tetris:
 
         return sum(heights)
 
+    # STATISTICS #
+
+    def calculate_bumpiness(self, board):
+        '''
+        Given a board, calculate the difference of heights between two adjacent columns.
+        An undesirable board is one where there exists deep "wells"
+        '''
+        bumpiness = 0
+        col_heights = [0 for _ in range(Tetris.BOARD_WIDTH)]
+
+        for x in range(Tetris.BOARD_WIDTH):
+            for y in range(Tetris.BOARD_HEIGHT):
+                # Finds the nearest pixel in iterated column and find its height before breaking and iterating to next column.
+                if board[y, x] == 1:
+                    col_heights[x] = Tetris.BOARD_HEIGHT - y
+                    break
+
+        print(col_heights)
+        for idx in range(1, len(col_heights)):
+            bumpiness += abs(col_heights[idx]-col_heights[idx-1])
+
+        return bumpiness
+
+    def calculate_holes(self, board):
+        '''
+        Given a board, calculate the number of holes that exist within the board.
+        A "hole" is defined when there exists an empty pixel and there exists a placed pixel above it in the same column.
+        '''
+
+        holes = 0
+        col_holes = [0 for _ in range(Tetris.BOARD_WIDTH)]
+
+        for x in range(Tetris.BOARD_WIDTH):
+            for y in range(Tetris.BOARD_HEIGHT):
+                if board[y, x] == 0:
+                    if 1 in board[:y, x]:
+                        print(board[:y, x])
+                        col_holes[x] += 1
+
+        print(col_holes)
+        holes = sum(col_holes)
+        return holes
+
 
 # Test Functionally
 if __name__ == "__main__":
