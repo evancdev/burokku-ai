@@ -94,12 +94,12 @@ class Tetris:
 
         # Drop the Tetromino gradually until it collides
         while not self.check_collision(self.curr_piece, self.curr_pos):
-            if render:
-                self.render()  # Render the game to show the piece moving
-                if delay:
-                    sleep(delay)  # Add a delay to simulate falling
+            # if render:
+            #     self.render()  # Render the game to show the piece moving
+            #     if delay:
+            #         sleep(delay)  # Add a delay to simulate falling
 
-            # Increment the Y position to simulate falling
+            # # Increment the Y position to simulate falling
             self.curr_pos[1] += 1
 
         # Once a collision is detected, move the piece back up by 1 row
@@ -113,6 +113,9 @@ class Tetris:
 
         # Spawn the next piece
         self.spawn_piece()
+
+        if render:
+            self.render()
 
     def check_collision(self, piece, pos):
         '''Checks for collisions with the board boundaries and other blocks'''
@@ -136,18 +139,24 @@ class Tetris:
     def add_piece(self, piece, pos):
         '''Adds the piece to the board at the given position'''
 
-        piece_height, piece_width = piece.shape
-        board = self.board.copy()
-        for i in range(piece_height):
-            for j in range(piece_width):
-                if piece[i, j] == 1:
-                    board[pos[1] + i, pos[0] + j] = 1
+        try:
 
-        # Check game over condition
-        if self.check_collision(self.curr_piece, self.curr_pos):
-            self.game_over = True
+            piece_height, piece_width = piece.shape
+            board = self.board.copy()
+            for i in range(piece_height):
+                for j in range(piece_width):
+                    if piece[i, j] == 1:
+                        board[pos[1] + i, pos[0] + j] = 1
 
-        return board
+            # Check game over condition
+            if self.check_collision(self.curr_piece, self.curr_pos):
+                self.game_over = True
+
+            return board
+
+        except:
+            print("Axes Error")
+            print(self.curr_piece)
 
     def update_score(self):
         '''Updates score after clearing full rows'''
@@ -254,6 +263,7 @@ class Tetris:
 
 
 # Testing
+
 if __name__ == "__main__":
     game = Tetris()
 
