@@ -3,7 +3,7 @@ import cv2 as cv
 import numpy as np
 
 class Tetris:
-    BOARD_WIDHT = 10
+    BOARD_WIDTH = 10
     BOARD_HEIGHT = 20
 
     TETROMINOS = {
@@ -63,6 +63,24 @@ class Tetris:
 
     def check_game(self):
         '''Checks if the game is over. Returns T when the game is over.'''
+
+    def check_collision(self, current_piece, position):
+        '''Checks dropping piece if there exists any other other placed pieces it may collide to.'''
+        for x, y in current_piece:
+            x += position[0]
+            y += position[1]
+
+            # Check of OOB or other collisions
+            if (
+                x < 0 or x >= Tetris.BOARD_WIDTH
+                or y < 0 or y >= Tetris.BOARD_HEIGHT
+                or self.board[y][x] == 1
+            ):
+                return True
+        return False
+
+        
+
 
     def play(self, render=False):
     def next_move(self):
