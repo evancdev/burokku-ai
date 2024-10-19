@@ -21,8 +21,8 @@ class Tetris:
 
     COLORS = {
         0: (0, 0, 0),
-        1: (125, 50, 50),
-        2: (0, 150, 250),
+        1: (255, 255, 255),
+        2: (255, 255, 255),
     }
 
     def __init__(self):
@@ -76,6 +76,8 @@ class Tetris:
                 self.curr_pos[1] += 1
         self.curr_pos[1] -= 1
 
+        self.board = self.add_piece(self.curr_piece, self.curr_pos)
+
     def check_collision(self, curr_piece, pos):
         '''Checks if the current piece collides with the boundaries or other placed pieces.'''
         for x, y in curr_piece:
@@ -92,6 +94,13 @@ class Tetris:
         for x, y in piece:
             board[y, x] = 1
         return board
+    
+    def add_piece(self, piece, pos):
+        board = self.board.copy()
+        for x, y in piece:
+            board[(y + pos[1], x + pos[0])] = 1
+        return board
+            
 
     def render(self):
         '''Renders the current board'''
@@ -102,9 +111,9 @@ class Tetris:
         img = Image.fromarray(img, 'RGB')
         img = img.resize(
             (Tetris.BOARD_WIDTH * 100, Tetris.BOARD_HEIGHT * 100), Image.NEAREST)
+        # Convert resized image back to a NumPy array for manipulation
         cv2.imshow('image', np.array(img))
         cv2.waitKey(1)
-
 
 # Test Functionally
 if __name__ == "__main__":
