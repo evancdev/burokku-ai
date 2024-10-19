@@ -64,9 +64,6 @@ class Tetris:
             self.next_piece = self.pool.pop()
             self.can_hold = False
 
-    def check_collision(self, curr_piece, curr_pos):
-        return
-
     def play(self, x_pos, render=False, delay=None):
         self.curr_pos = [x_pos, 0]
 
@@ -105,12 +102,6 @@ class Tetris:
                 return True
         return False
 
-    def play(self, render=False):
-
-    def next_move(self):
-        pass
-
-    #
     def get_score(self):
         """Summary or Description of the Function
         """
