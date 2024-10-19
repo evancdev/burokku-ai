@@ -133,36 +133,36 @@ class Tetris:
         cv2.waitKey(1)
 
     def set_curr(self, tetromino):
-        # Sets the current piece to tetromino. Used for debugging
+        '''Sets the current piece to tetromino. Used for debugging'''
         self.curr_piece = Tetris.TETROMINOS[tetromino]
 
+    def set_board(self, nboard):
+        '''Sets the current board to nboard. nboard has to be a np array'''
+        self.board = nboard
+
     def print_score(self):
-        # Prints the score
+        '''Prints the score'''
         print(self.score)
+
+    def print_board(self):
+        '''Prints the board'''
+        print(self.board)
+
+    def aggregated_height(self):
+        ''' Computes the aggregated height and returns it '''
+        heights = []
+        for col in range(Tetris.BOARD_WIDTH):
+            column_tiles = self.board[:, col]
+            non_zero = np.where(column_tiles > 0)[0]
+            if len(non_zero) > 0:
+                height = Tetris.BOARD_HEIGHT - non_zero[0]
+            else:
+                height = 0
+            heights.append(height)
+
+        return sum(heights)
 
 
 # Test Functionally
 if __name__ == "__main__":
     game = Tetris()
-    game.set_curr(6)
-    game.play(1, True, delay=0.0001)
-    game.set_curr(6)
-    game.play(3, True, delay=0.0001)
-    game.set_curr(6)
-    game.play(5, True, delay=0.0001)
-    game.set_curr(6)
-    game.play(7, True, delay=0.0001)
-    game.set_curr(6)
-    game.play(1, True, delay=0.0001)
-    game.set_curr(6)
-    game.play(3, True, delay=0.0001)
-    game.set_curr(6)
-    game.play(5, True, delay=0.0001)
-    game.set_curr(6)
-    game.play(7, True, delay=0.0001)
-    game.set_curr(5)
-    game.play(8, True, delay=0.0001)
-    game.set_curr(5)
-    game.play(9, True, delay=0.0001)
-
-    game.print_score()
