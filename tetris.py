@@ -73,8 +73,8 @@ class Tetris:
                 self.curr_pos[1] += 1
         self.curr_pos[1] -= 1
 
-        self.board = self.add_piece(self.curr_piece, self.curr_pos)
-
+        self.add_piece(self.curr_piece, self.curr_pos)
+        self.update_score()
         self.next()
 
     def check_collision(self, curr_piece, pos):
@@ -85,6 +85,25 @@ class Tetris:
             if (x < 0 or x >= Tetris.BOARD_WIDTH or y >= Tetris.BOARD_HEIGHT or (y >= 0 and self.board[y, x] == 1)):
                 return True
         return False
+
+    def clean_rows(self):
+        '''Updates the board based on the number of full rows. Returns the number of full rows.'''
+        # Finds all the rows that are full
+        full_rows = [index for index, row in enumerate(
+            self.board) if np.all(row)]
+
+        # Remove full rows and shift the rest down
+        for row_index in full_rows:
+            self.board = np.delete(self.board, row_index, axis=0)
+            new_row = np.zeros((1, Tetris.BOARD_WIDTH), dtype=int)
+            self.board = np.vstack([new_row, self.board])
+        return len(full_rows)
+
+    def update_score(self):
+        '''Updates the score based on the number of full rows'''
+        full_rows = self.clean_rows()
+        if full_rows:
+            self.score += 100 * (2 ** (full_rows - 1))
 
     def get_board(self):
         '''Returns the current board'''
@@ -98,7 +117,7 @@ class Tetris:
         board = self.board.copy()
         for x, y in piece:
             board[(y + pos[1], x + pos[0])] = 1
-        return board
+        self.board = board
 
     def render(self):
         '''Renders the current board'''
@@ -116,6 +135,10 @@ class Tetris:
     def set_curr(self, tetromino):
         # Sets the current piece to tetromino. Used for debugging
         self.curr_piece = Tetris.TETROMINOS[tetromino]
+
+    def print_score(self):
+        # Prints the score
+        print(self.score)
 
     # STATISTICS #
 
@@ -165,14 +188,25 @@ class Tetris:
 # Test Functionally
 if __name__ == "__main__":
     game = Tetris()
-    game.play(3, True, delay=0.001)
-    game.play(3, True, delay=0.001)
-    game.play(3, True, delay=0.001)
-    game.play(3, True, delay=0.001)
+    game.set_curr(6)
+    game.play(1, True, delay=0.0001)
+    game.set_curr(6)
+    game.play(3, True, delay=0.0001)
+    game.set_curr(6)
+    game.play(5, True, delay=0.0001)
+    game.set_curr(6)
+    game.play(7, True, delay=0.0001)
+    game.set_curr(6)
+    game.play(1, True, delay=0.0001)
+    game.set_curr(6)
+    game.play(3, True, delay=0.0001)
+    game.set_curr(6)
+    game.play(5, True, delay=0.0001)
+    game.set_curr(6)
+    game.play(7, True, delay=0.0001)
+    game.set_curr(5)
+    game.play(8, True, delay=0.0001)
+    game.set_curr(5)
+    game.play(9, True, delay=0.0001)
 
-
-    print(game.board)
-    game.calculate_bumpiness(game.board)
-    game.calculate_holes(game.board)
-
-
+    game.print_score()
