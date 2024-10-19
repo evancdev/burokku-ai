@@ -1,10 +1,11 @@
 import random
+import cv2 as cv
 import numpy as np
 from time import sleep
 
 
 class Tetris:
-    BOARD_WIDHT = 10
+    BOARD_WIDTH = 10
     BOARD_HEIGHT = 20
 
     TETROMINOS = {
@@ -85,3 +86,50 @@ class Tetris:
     # TODO: Render the game
     def render():
         return
+
+    def check_game(self):
+        '''Checks if the game is over. Returns T when the game is over.'''
+
+    def check_collision(self, current_piece, position):
+        '''Checks dropping piece if there exists any other other placed pieces it may collide to.'''
+        for x, y in current_piece:
+            x += position[0]
+            y += position[1]
+
+            # Check of OOB or other collisions
+            if (
+                x < 0 or x >= Tetris.BOARD_WIDTH
+                or y < 0 or y >= Tetris.BOARD_HEIGHT
+                or self.board[y][x] == 1
+            ):
+                return True
+        return False
+
+    def play(self, render=False):
+
+    def next_move(self):
+        pass
+
+    #
+    def get_score(self):
+        """Summary or Description of the Function
+        """
+
+        return self.score
+
+    def calculate_bumpiness(self):
+        """Returns the bumpiness of a grid. The bumpiness of two columns is defined to be the variation between adjacent column heights."""
+
+        bumpiness = 0
+
+        # Initiaize empty array that calculates the height of each column of the grid
+        col_height = []
+
+        for col in range(Tetris.BOARD_WIDHT):
+            col_height[col] = 0
+
+        for idx in range(Tetris.BOARD_HEIGHT):
+            for jdx in range(Tetris.BOARD_WIDHT):
+                continue
+
+        pass
