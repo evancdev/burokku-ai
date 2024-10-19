@@ -1,6 +1,7 @@
 import random
-import cv2 as cv
+import cv2
 import numpy as np
+from PIL import Image
 from time import sleep
 
 
@@ -19,39 +20,32 @@ class Tetris:
     }
 
     COLORS = {
+        0: (0, 0, 0),
+        1: (125, 50, 50),
+        2: (0, 150, 250),
     }
 
     def __init__(self):
-        self.start()
-
-    def start(self):
-        '''Starts the game'''
         self.board = np.zeros(
-            shape=(Tetris.BOARD_WIDTH, Tetris.BOARD_HEIGH), dtype=np.float)
+            (Tetris.BOARD_HEIGHT, Tetris.BOARD_WIDTH), dtype=int)
         self.score = 0
         self.hold = {}
         self.can_hold = True
-        self.tetromino_pool = self.bag = list(range(len(Tetris.TETROMINOS)))
+        self.tetromino_pool = [0, 1, 2, 3, 4, 5, 6]
         random.shuffle(self.tetromino_pool)
-        self.next_piece = self.tetromino_pool.pop()
+        self.next_piece = Tetris.TETROMINOS[self.tetromino_pool.pop()]
         self.curr_piece = self.next_piece
-        self.curr_pos = [3, 0]
+        self.curr_pos = []
         self.game_over = False
         self.next()
 
-    def get_score(self):
-        '''Returns the current score'''
-        return self.score
-
     def next(self):
-        '''Updates the next_piece for the next move'''
+        '''Updates the and curr_piece'''
         if len(self.tetromino_pool) == 0:
-            self.tetromino_pool = self.bag = list(
-                range(len(Tetris.TETROMINOS)))
+            self.tetromino_pool = [0, 1, 2, 3, 4, 5, 6]
             random.shuffle(self.tetromino_pool)
-        self.next_piece = self.tetromino_pool.pop()
-
-        self.game_over = self.check_game()
+        self.next_piece = Tetris.TETROMINOS[self.tetromino_pool.pop()]
+        self.curr_piece = self.next_piece
 
     def rotate(tetromino):
         '''Rotates the currect tetromino'''
@@ -60,12 +54,18 @@ class Tetris:
     def hold(self):
         '''Holds the current tetromino'''
         if self.can_hold:
-            self.hold.append(self.next_piece)
-            self.next_piece = self.pool.pop()
+            self.hold.append(self.curr_piece)
+            self.next_piece = Tetris.TETROMINOS[self.tetromino_pool.pop()]
+            self.curr_piece = self.next_piece
             self.can_hold = False
 
     def play(self, x_pos, render=False, delay=None):
-        self.curr_pos = [x_pos, 0]
+        # Ensures proper starting position of shape and not have "part" of a piece to be on the bottom of the board.
+        y_pos_min = float("inf")
+        for _, y_pos in self.curr_piece:
+            if y_pos < y_pos_min:
+                y_pos_min = y_pos
+        self.curr_pos = [x_pos, abs(y_pos)]
 
         # Drops the current tetromino while checking for collision
         while not self.check_collision(self.curr_piece, self.curr_pos):
@@ -76,51 +76,39 @@ class Tetris:
                 self.curr_pos[1] += 1
         self.curr_pos[1] -= 1
 
-        # TODO: Update board and scores
-
-        # TODO: Start next round
-
-    # TODO: Render the game
-    def render():
-        return
-
-    def check_game(self):
-        '''Checks if the game is over. Returns T when the game is over.'''
-
-    def check_collision(self, current_piece, position):
-        '''Checks dropping piece if there exists any other other placed pieces it may collide to.'''
-        for x, y in current_piece:
-            x += position[0]
-            y += position[1]
-
-            # Check of OOB or other collisions
-            if (
-                x < 0 or x >= Tetris.BOARD_WIDTH
-                or y < 0 or y >= Tetris.BOARD_HEIGHT
-                or self.board[y][x] == 1
-            ):
+    def check_collision(self, curr_piece, pos):
+        '''Checks if the current piece collides with the boundaries or other placed pieces.'''
+        for x, y in curr_piece:
+            x += pos[0]
+            y += pos[1]
+            if (x < 0 or x >= Tetris.BOARD_WIDTH or y < 0 or y >= Tetris.BOARD_HEIGHT or self.board[y, x] == 1):
                 return True
         return False
 
-    def get_score(self):
-        """Summary or Description of the Function
-        """
+    def get_board(self):
+        '''Returns the current board'''
+        piece = [np.add(x, self.curr_pos) for x in self.curr_piece]
+        board = self.board.copy()
+        for x, y in piece:
+            board[y, x] = 1
+        return board
 
-        return self.score
+    def render(self):
+        '''Renders the current board'''
+        img = [Tetris.COLORS[p] for row in self.get_board()
+               for p in row]
+        img = np.array(img).reshape(Tetris.BOARD_HEIGHT,
+                                    Tetris.BOARD_WIDTH, 3).astype(np.uint8)
+        img = Image.fromarray(img, 'RGB')
+        img = img.resize(
+            (Tetris.BOARD_WIDTH * 100, Tetris.BOARD_HEIGHT * 100), Image.NEAREST)
+        cv2.imshow('image', np.array(img))
+        cv2.waitKey(1)
 
-    def calculate_bumpiness(self):
-        """Returns the bumpiness of a grid. The bumpiness of two columns is defined to be the variation between adjacent column heights."""
 
-        bumpiness = 0
-
-        # Initiaize empty array that calculates the height of each column of the grid
-        col_height = []
-
-        for col in range(Tetris.BOARD_WIDHT):
-            col_height[col] = 0
-
-        for idx in range(Tetris.BOARD_HEIGHT):
-            for jdx in range(Tetris.BOARD_WIDHT):
-                continue
-
-        pass
+# Test Functionally
+if __name__ == "__main__":
+    game = Tetris()
+    game.play(1, True, delay=0.2)
+    game.play(1, True, delay=0.2)
+    game.play(1, True, delay=0.2)
