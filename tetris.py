@@ -61,11 +61,8 @@ class Tetris:
 
     def play(self, x_pos, render=False, delay=None):
         # Ensures proper starting position of shape and not have "part" of a piece to be on the bottom of the board.
-        y_pos_min = float("inf")
-        for _, y_pos in self.curr_piece:
-            if y_pos < y_pos_min:
-                y_pos_min = y_pos
-        self.curr_pos = [x_pos, abs(y_pos)]
+        y_offset = min(y for _, y in self.curr_piece)
+        self.curr_pos = [x_pos, -y_offset]
 
         # Drops the current tetromino while checking for collision
         while not self.check_collision(self.curr_piece, self.curr_pos):
@@ -78,15 +75,16 @@ class Tetris:
 
         self.board = self.add_piece(self.curr_piece, self.curr_pos)
 
+        self.next()
+
     def check_collision(self, curr_piece, pos):
         '''Checks if the current piece collides with the boundaries or other placed pieces.'''
         for x, y in curr_piece:
             x += pos[0]
             y += pos[1]
-            if (x < 0 or x >= Tetris.BOARD_WIDTH or y < 0 or y >= Tetris.BOARD_HEIGHT or self.board[y, x] == 1):
+            if (x < 0 or x >= Tetris.BOARD_WIDTH or y >= Tetris.BOARD_HEIGHT or (y >= 0 and self.board[y, x] == 1)):
                 return True
         return False
-
     def get_board(self):
         '''Returns the current board'''
         piece = [np.add(x, self.curr_pos) for x in self.curr_piece]
@@ -115,9 +113,15 @@ class Tetris:
         cv2.imshow('image', np.array(img))
         cv2.waitKey(1)
 
+    def sc(self, tetro):
+        self.curr_piece = Tetris.TETROMINOS[tetro]
+
 # Test Functionally
 if __name__ == "__main__":
     game = Tetris()
-    game.play(1, True, delay=0.2)
-    game.play(1, True, delay=0.2)
-    game.play(1, True, delay=0.2)
+    game.sc(1)
+    game.play(3, True, delay=0.1)
+    game.sc(4)
+    game.play(3, True, delay=0.1)
+    game.play(3, True, delay=0.1)
+
