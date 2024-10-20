@@ -82,10 +82,10 @@ class Tetris:
 
         self.curr_pos = [3, 0]
 
-    def rotate_piece(self):
+    def rotate_piece(self, rotation):
         '''Rotates the current piece 90 degrees counterclockwise'''
 
-        rotated_piece = np.rot90(self.curr_piece)
+        rotated_piece = np.rot90(self.curr_piece, k = rotation)
 
         if not self.check_collision(rotated_piece, self.curr_pos):
             self.curr_piece = rotated_piece
@@ -184,7 +184,7 @@ class Tetris:
 
     def clean_rows(self):
         '''Clears full rows and shifts the rest down'''
-        
+
         full_rows = [i for i, row in enumerate(self.board) if np.all(row)]
         for row_index in full_rows:
             self.board = np.delete(self.board, row_index, axis=0)
@@ -284,16 +284,20 @@ class Tetris:
 # Testing
 
 if __name__ == "__main__":
-    # game = Tetris()
+    game = Tetris()
 
-    # game.play(0, render=True)
+    game.set_curr(0)
+    print(game.curr_piece)
+    game.rotate_piece(4)
+    
+    game.play(6, render=True)
 
     # while not game.game_over:
     #     game.play(0, render=True)
 
-    while True:
-        game = Tetris()
-        game.play(random.randint(0, 6), render=True)
+    # while True:
+    #     game = Tetris()
+    #     game.play(random.randint(0, 6), render=True)
 
     print(game.board)
     print(game.calculate_bumpiness(game.board))
