@@ -26,5 +26,47 @@ import unittest
 
 
 class TestClass(unittest.TestCase):
+    board1 = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+              [0, 0, 0, 0, 1, 1, 0, 0, 0, 0],
+              [0, 1, 1, 1, 1, 1, 1, 0, 0, 1],
+              [0, 1, 1, 0, 1, 1, 1, 1, 1, 1],
+              [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+              [1, 1, 1, 0, 1, 1, 1, 1, 1, 1],
+              [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]]
+
     def test_calculate_bumpiness(self):
-        self.assertEqual(-1, Tetris.calculate_bumpiness(0))
+        game = Tetris()
+        game.set_board(TestClass.board1)
+        self.assertEqual(6, Tetris.calculate_bumpiness(game))
+
+    def test_calculate_aggregated_height(self):
+        game = Tetris()
+        game.set_board(TestClass.board1)
+        self.assertEqual(48, Tetris.calculate_aggregated_height(game))
+
+    def test_calculate_holes(self):
+        game = Tetris()
+        game.set_board(TestClass.board1)
+        self.assertEqual(2, Tetris.calculate_holes(game))
+
+    def test_clean_rows(self):
+        game = Tetris()
+        game.set_board(TestClass.board1)
+        self.assertEqual(2, Tetris.clean_rows(game))
+
+
+if __name__ == "__main__":
+    unittest.main()
