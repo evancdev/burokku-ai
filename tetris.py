@@ -2,8 +2,6 @@ import random
 import cv2
 import numpy as np
 from PIL import Image
-from time import sleep
-
 
 class Tetris:
     BOARD_WIDTH = 10
@@ -31,6 +29,9 @@ class Tetris:
     }
 
     def __init__(self):
+        self.reset()
+    
+    def reset(self):
         self.board = np.zeros(
             (Tetris.BOARD_HEIGHT, Tetris.BOARD_WIDTH), dtype=int)
         # self.board = np.array([
@@ -57,6 +58,7 @@ class Tetris:
         # ])
 
         self.score = 0
+        self.lines_cleared = 0
         self.hold_piece = None
         self.can_hold = True
 
@@ -180,7 +182,7 @@ class Tetris:
 
         full_rows = self.clean_rows()
         if full_rows:
-            self.score += 100 * (2 ** (full_rows - 1))
+            self.score += 1 * (2 ** (full_rows - 1))
 
     def clean_rows(self):
         '''Clears full rows and shifts the rest down'''
@@ -190,6 +192,7 @@ class Tetris:
             self.board = np.delete(self.board, row_index, axis=0)
             new_row = np.zeros((1, Tetris.BOARD_WIDTH), dtype=int)
             self.board = np.vstack([new_row, self.board])
+        self.lines_cleared += len(full_rows)
         return len(full_rows)
 
     def render(self):
@@ -197,20 +200,34 @@ class Tetris:
 
         board_copy = self.board.copy()
 
-        # piece_height, piece_width = self.curr_piece.shape
-        # for i in range(piece_height):
-        #     for j in range(piece_width):
-        #         if self.curr_piece[i, j] == 1:
-        #             x = self.curr_pos[0] + j
-        #             y = self.curr_pos[1] + i
-        #             if 0 <= x < Tetris.BOARD_WIDTH and 0 <= y < Tetris.BOARD_HEIGHT:
-        #                 board_copy[y, x] = 1  # Overlay the falling Tetromino
+        piece_height, piece_width = self.curr_piece.shape
+        for i in range(piece_height):
+            for j in range(piece_width):
+                if self.curr_piece[i, j] == 1:
+                    x = self.curr_pos[0] + j
+                    y = self.curr_pos[1] + i
+                    if 0 <= x < Tetris.BOARD_WIDTH and 0 <= y < Tetris.BOARD_HEIGHT:
+                        board_copy[y, x] = 1  # Overlay the falling Tetromino
 
         # Convert board to cv2 image
         img = np.array([[Tetris.COLORS[cell] for cell in row]
                        for row in board_copy], dtype=np.uint8)
         img = Image.fromarray(img, 'RGB').resize(
             (Tetris.BOARD_WIDTH * 25, Tetris.BOARD_HEIGHT * 25), Image.NEAREST)
+        
+        img = np.array(img)
+        # Add the score text to the image
+        score_text = f"Score: {self.score}"
+        cv2.putText(
+            img,                      
+            score_text,                
+            (10, 490),                        
+            cv2.FONT_HERSHEY_SIMPLEX,         
+            1,                             
+            (0, 0, 255),              
+            2,                         
+            cv2.LINE_AA                      
+        )
 
         # Show the game using OpenCV
         cv2.imshow('Tetris', np.array(img))
@@ -259,6 +276,29 @@ class Tetris:
 
         return sum(heights)
 
+    # DQN
+
+    def step(self, action, render = True):
+        x_pos, rotation = action
+        if x_pos < 0 or x_pos + self.curr_piece.shape[1] > Tetris.BOARD_WIDTH: # Check if shape is valid to place based on its width and if it may cross boundaries
+            return
+        self.curr_pos = [x_pos, 0]
+        self.rotate_piece(rotation)
+        while not self.check_collision(self.curr_piece, self.curr_pos):
+            self.curr_pos[1] += 1
+        self.curr_pos[1] -=1
+        self.board = self.add_piece(self.curr_piece, self.curr_pos)
+        self.update_score()
+        if render:
+            self.render()
+        if not self.game_over:
+            self.spawn_piece()
+        else:
+            self.score -= 2
+        return self.score, self.game_over
+
+        
+
     def calculate_bumpiness(self, board):
         '''
         Given a board, calculate the difference of heights between two adjacent columns.
@@ -280,25 +320,7 @@ class Tetris:
 
         return bumpiness
 
-
 # Testing
 
 if __name__ == "__main__":
     game = Tetris()
-
-    game.set_curr(0)
-    print(game.curr_piece)
-    game.rotate_piece(4)
-    
-    game.play(6, render=True)
-
-    # while not game.game_over:
-    #     game.play(0, render=True)
-
-    # while True:
-    #     game = Tetris()
-    #     game.play(random.randint(0, 6), render=True)
-
-    print(game.board)
-    print(game.calculate_bumpiness(game.board))
-    print("Game Over. Final Score:", game.score)
