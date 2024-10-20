@@ -300,8 +300,6 @@ class Tetris:
             self.score -= 2
         return self.score, self.game_over
 
-        
-
     def calculate_bumpiness(self, board):
         '''
         Given a board, calculate the difference of heights between two adjacent columns.
