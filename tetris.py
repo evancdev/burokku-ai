@@ -33,26 +33,29 @@ class Tetris:
     def __init__(self):
         self.board = np.zeros(
             (Tetris.BOARD_HEIGHT, Tetris.BOARD_WIDTH), dtype=int)
-        # self.board = np.array([[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        #                        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        #                        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        #                        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        #                        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        #                        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        #                        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        #                        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        #                        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        #                        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        #                        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        #                        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        #                        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        #                        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        #                        [0, 0, 0, 0, 1, 1, 0, 0, 0, 0],
-        #                        [0, 1, 1, 1, 1, 1, 1, 0, 0, 1],
-        #                        [0, 1, 1, 0, 1, 1, 1, 1, 1, 1],
-        #                        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-        #                        [1, 1, 1, 0, 1, 1, 1, 1, 1, 1],
-        #                        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]])
+        # self.board = np.array([
+        #     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        #     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        #     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        #     [0, 0, 1, 1, 1, 0, 0, 0, 0, 0],
+        #     [0, 1, 1, 1, 1, 0, 0, 0, 0, 0],
+        #     [0, 1, 1, 1, 1, 1, 1, 0, 1, 0],
+        #     [1, 1, 1, 1, 1, 1, 1, 0, 1, 1],
+        #     [1, 1, 1, 1, 1, 1, 1, 1, 1, 0],
+        #     [1, 1, 1, 1, 1, 1, 1, 1, 1, 0],
+        #     [1, 0, 1, 1, 1, 1, 1, 1, 1, 1],
+        #     [1, 1, 1, 1, 1, 1, 1, 0, 1, 1],
+        #     [1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
+        #     [1, 1, 0, 1, 1, 0, 1, 1, 1, 1],
+        #     [1, 1, 1, 1, 1, 1, 1, 0, 1, 1],
+        #     [1, 0, 1, 0, 1, 1, 1, 1, 1, 1],
+        #     [1, 1, 1, 0, 1, 1, 1, 1, 1, 1],
+        #     [1, 1, 1, 1, 1, 1, 0, 1, 1, 1],
+        #     [1, 1, 1, 1, 1, 1, 1, 1, 1, 0],
+        #     [1, 0, 1, 1, 1, 1, 1, 1, 1, 1],
+        #     [1, 1, 1, 0, 1, 1, 1, 1, 1, 1]
+        # ])
+
         self.score = 0
         self.hold_piece = None
         self.can_hold = True
@@ -92,6 +95,9 @@ class Tetris:
 
         self.curr_pos = [x_pos, 0]
 
+        if x_pos < 0 or x_pos + self.curr_piece.shape[1] > Tetris.BOARD_WIDTH: # Check if shape is valid to place based on its width and if it may cross boundaries
+            return
+
         # Drop the Tetromino gradually until it collides
         while not self.check_collision(self.curr_piece, self.curr_pos):
             # if render:
@@ -99,7 +105,7 @@ class Tetris:
             #     if delay:
             #         sleep(delay)  # Add a delay to simulate falling
 
-            # # Increment the Y position to simulate falling
+            # Increment the Y position to simulate falling
             self.curr_pos[1] += 1
 
         # Once a collision is detected, move the piece back up by 1 row
@@ -114,27 +120,37 @@ class Tetris:
         # Spawn the next piece
         self.spawn_piece()
 
+
         if render:
             self.render()
 
     def check_collision(self, piece, pos):
         '''Checks for collisions with the board boundaries and other blocks'''
-
+        
         piece_height, piece_width = piece.shape
+
+        # Chcek if piece fits horizontally
+        if pos[0] < 0 or pos[0] + piece_width > Tetris.BOARD_WIDTH:
+            # print(pos[0])
+            # print(piece_width)
+            return True 
+
         for i in range(piece_height):
             for j in range(piece_width):
                 if piece[i, j] == 1:
                     board_x = pos[0] + j
                     board_y = pos[1] + i
 
-                    # Check if out of bounds or colliding with existing blocks
-                    if board_x < 0 or board_x >= Tetris.BOARD_WIDTH \
-                            or board_y >= Tetris.BOARD_HEIGHT:  # Ignore pieces above the top row (y < 0)
+                    # Check if piece fits on the floor and not outside
+                    if board_y >= Tetris.BOARD_HEIGHT:
                         return True
-                    elif board_y >= 0 and self.board[board_y, board_x] == 1:
-                        return True
+                    
+                    # Check nearest tile collided
+                    if board_y >= 0 and self.board[board_y, board_x] == 1:
+                        return True  # Collied with a placed tile
 
         return False
+
 
     def add_piece(self, piece, pos):
         '''Adds the piece to the board at the given position'''
@@ -155,17 +171,20 @@ class Tetris:
             return board
 
         except:
-            print("Axes Error")
+            print(pos)
+            print(self.board)
             print(self.curr_piece)
 
     def update_score(self):
         '''Updates score after clearing full rows'''
+
         full_rows = self.clean_rows()
         if full_rows:
             self.score += 100 * (2 ** (full_rows - 1))
 
     def clean_rows(self):
         '''Clears full rows and shifts the rest down'''
+        
         full_rows = [i for i, row in enumerate(self.board) if np.all(row)]
         for row_index in full_rows:
             self.board = np.delete(self.board, row_index, axis=0)
@@ -175,19 +194,19 @@ class Tetris:
 
     def render(self):
         '''Renders the current game board'''
-        # Copy the current board and overlay the falling Tetromino on top of it
+
         board_copy = self.board.copy()
 
-        piece_height, piece_width = self.curr_piece.shape
-        for i in range(piece_height):
-            for j in range(piece_width):
-                if self.curr_piece[i, j] == 1:
-                    x = self.curr_pos[0] + j
-                    y = self.curr_pos[1] + i
-                    if 0 <= x < Tetris.BOARD_WIDTH and 0 <= y < Tetris.BOARD_HEIGHT:
-                        board_copy[y, x] = 1  # Overlay the falling Tetromino
+        # piece_height, piece_width = self.curr_piece.shape
+        # for i in range(piece_height):
+        #     for j in range(piece_width):
+        #         if self.curr_piece[i, j] == 1:
+        #             x = self.curr_pos[0] + j
+        #             y = self.curr_pos[1] + i
+        #             if 0 <= x < Tetris.BOARD_WIDTH and 0 <= y < Tetris.BOARD_HEIGHT:
+        #                 board_copy[y, x] = 1  # Overlay the falling Tetromino
 
-        # Convert the board into an image for display
+        # Convert board to cv2 image
         img = np.array([[Tetris.COLORS[cell] for cell in row]
                        for row in board_copy], dtype=np.uint8)
         img = Image.fromarray(img, 'RGB').resize(
@@ -265,15 +284,17 @@ class Tetris:
 # Testing
 
 if __name__ == "__main__":
-    game = Tetris()
+    # game = Tetris()
 
-    game.play(0, render=True)
+    # game.play(0, render=True)
 
     # while not game.game_over:
     #     game.play(0, render=True)
 
-    while not game.game_over:
+    while True:
+        game = Tetris()
         game.play(random.randint(0, 6), render=True)
+
     print(game.board)
     print(game.calculate_bumpiness(game.board))
     print("Game Over. Final Score:", game.score)
