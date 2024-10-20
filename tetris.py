@@ -87,7 +87,7 @@ class Tetris:
     def rotate_piece(self, rotation):
         '''Rotates the current piece 90 degrees counterclockwise'''
 
-        rotated_piece = np.rot90(self.curr_piece, k = rotation)
+        rotated_piece = np.rot90(self.curr_piece, k=rotation)
 
         if not self.check_collision(rotated_piece, self.curr_pos):
             self.curr_piece = rotated_piece
@@ -97,7 +97,8 @@ class Tetris:
 
         self.curr_pos = [x_pos, 0]
 
-        if x_pos < 0 or x_pos + self.curr_piece.shape[1] > Tetris.BOARD_WIDTH: # Check if shape is valid to place based on its width and if it may cross boundaries
+        # Check if shape is valid to place based on its width and if it may cross boundaries
+        if x_pos < 0 or x_pos + self.curr_piece.shape[1] > Tetris.BOARD_WIDTH:
             return
 
         # Drop the Tetromino gradually until it collides
@@ -122,20 +123,19 @@ class Tetris:
         # Spawn the next piece
         self.spawn_piece()
 
-
         if render:
             self.render()
 
     def check_collision(self, piece, pos):
         '''Checks for collisions with the board boundaries and other blocks'''
-        
+
         piece_height, piece_width = piece.shape
 
         # Chcek if piece fits horizontally
         if pos[0] < 0 or pos[0] + piece_width > Tetris.BOARD_WIDTH:
             # print(pos[0])
             # print(piece_width)
-            return True 
+            return True
 
         for i in range(piece_height):
             for j in range(piece_width):
@@ -146,13 +146,12 @@ class Tetris:
                     # Check if piece fits on the floor and not outside
                     if board_y >= Tetris.BOARD_HEIGHT:
                         return True
-                    
+
                     # Check nearest tile collided
                     if board_y >= 0 and self.board[board_y, board_x] == 1:
                         return True  # Collied with a placed tile
 
         return False
-
 
     def add_piece(self, piece, pos):
         '''Adds the piece to the board at the given position'''
@@ -240,9 +239,13 @@ class Tetris:
 
         self.curr_piece = Tetris.TETROMINOS[tetromino]
 
+    def set_board(self, nboard):
+        '''Sets the current board to nboard. Used for debugging'''
+        self.board = np.array(nboard)
+
     # STATISTICS
 
-    def calculate_holes(self, board):
+    def calculate_holes(self):
         '''
         Given a board, calculate the number of holes that exist within the board.
         A "hole" is defined when there exists an empty pixel and there exists a placed pixel above it in the same column.
@@ -253,8 +256,8 @@ class Tetris:
 
         for x in range(Tetris.BOARD_HEIGHT):
             for y in range(Tetris.BOARD_WIDTH):
-                if board[x, y] == 0:
-                    if 1 in board[:x, y]:
+                if self.board[x, y] == 0:
+                    if 1 in self.board[:x, y]:
                         # print(board[:y, x])
                         col_holes[x] += 1
 
@@ -310,7 +313,7 @@ class Tetris:
         for x in range(Tetris.BOARD_WIDTH):
             for y in range(Tetris.BOARD_HEIGHT):
                 # Finds the nearest pixel in iterated column and find its height before breaking and iterating to next column.
-                if board[y, x] == 1:
+                if self.board[y, x] == 1:
                     col_heights[x] = Tetris.BOARD_HEIGHT - y
                     break
 
@@ -324,3 +327,27 @@ class Tetris:
 
 if __name__ == "__main__":
     game = Tetris()
+
+    board1 = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+              [0, 0, 0, 0, 1, 1, 0, 0, 0, 0],
+              [0, 1, 1, 1, 1, 1, 1, 0, 0, 1],
+              [0, 1, 1, 0, 1, 1, 1, 1, 1, 1],
+              [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+              [1, 1, 1, 0, 1, 1, 1, 1, 1, 1],
+              [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]]
+
+    game.set_board(board1)
+    print(game.board)
