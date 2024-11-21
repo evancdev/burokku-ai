@@ -46,6 +46,11 @@ class DQNAgent:
        Builds a Keras dense neural network
        """
 
+    def predict_output(self, state):
+       """
+       Predicts score output from a given state
+       """
+       return self.model.predict(state)[0]
 
     def act(self, state):
       """
@@ -55,10 +60,20 @@ class DQNAgent:
       - state (np.array): The current state of the environment
 
       Returns:
-      - action (int, int): Selected action comprising of designated location of piece and rotation
+      - score (int): The expected score from a certain state
       """
 
-      pass
+      if random.random() <= self.epsilon:
+         return self.random_qvalue()
+      else:
+         state = np.reshape(state, [1, self.state_size]) # First dim represents batch size of one
+         return self.predict_output(state)
+      
+    def random_output(self):
+       """
+       Returns a random score output
+       """
+       return random.random()
 
     def remember(self, state, action, reward, next_state, done):
         """
