@@ -83,11 +83,11 @@ class DQNAgent:
       - score (int): The expected score from a certain state
       """
 
-      if random.random() <= self.epsilon:
-         return self.random_qvalue()
-      else:
-         state = np.reshape(state, [1, self.state_size]) # First dim represents batch size of one
-         return self.predict_output(state)
+        if random.random() <= self.epsilon:
+            return self.random_qvalue()
+        else:
+            state = np.reshape(state, [1, self.state_size]) # First dim represents batch size of one
+            return self.predict_output(state)
       
     def random_output(self):
        """
