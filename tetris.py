@@ -300,7 +300,7 @@ class Tetris:
             self.score -= 2
         return self.score, self.game_over
 
-    def calculate_bumpiness(self, board):
+    def calculate_bumpiness(self):
         '''
         Given a board, calculate the difference of heights between two adjacent columns.
         An undesirable board is one where there exists deep "wells"
