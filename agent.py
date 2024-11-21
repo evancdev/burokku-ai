@@ -5,6 +5,7 @@ from collections import deque
 import numpy as np
 import random
 
+
 class DQNAgent:
     """
     Agent that learns to play Tetris using the quality value function
@@ -18,6 +19,10 @@ class DQNAgent:
     - epsilon (float): Exploration rate
     - epsilon_min (float): Minimum exploration rate
     - epsilon_decay (float): Exploration decay rate
+    - n_neurons (list(int)): list of number of neurons in each inner layer
+    - activations (list): list of activations used in each inner layer
+    - loss_fun (obj): loss function object
+    - optimizer (obj): optimizer object
 
     Methods:
     - act(state): Use epsilon-greedy policy to play action based on the current state
@@ -26,26 +31,41 @@ class DQNAgent:
     """
 
     def __init__(self, state_size,
-                  buffer_size, batch_size, gamma, 
-                  learning_rate, epsilon, 
-                  epsilon_min, epsilon_decay):
-      
-      self.discount = gamma
-      self.state_size = state_size
-      self.batch_size = batch_size
-      self.buffer_size = buffer_size
-      self.epsilon = epsilon
-      self.epsilon_min = epsilon_min
-      self.epsilon_decay = epsilon_decay
-      self.learning_rate = learning_rate
+                 buffer_size, batch_size, gamma,
+                 learning_rate, epsilon,
+                 epsilon_min, epsilon_decay, n_neurons, activations, loss_fun, optimizer):
 
-      self.model = self.build_model()
-    
+        self.discount = gamma
+        self.state_size = state_size
+        self.batch_size = batch_size
+        self.buffer_size = buffer_size
+        self.mem = deque(maxlen=buffer_size)
+        self.epsilon = epsilon
+        self.epsilon_min = epsilon_min
+        self.epsilon_decay = epsilon_decay
+        self.learning_rate = learning_rate
+        self.n_neurons = n_neurons
+        self.activations = activations
+        self.loss_fun = loss_fun
+        self.optimizer = optimizer
+
+        self.model = self.build_model()
+
     def build_model(self):
-       """
-       Builds a Keras dense neural network
-       """
+        """
+        Builds a Keras dense neural network
+        """
 
+        model = Sequential()
+        model.add(Dense(
+            self.n_neurons[0], input_dimension=self.state_size, activation=self.activations[0]))
+        for i in range(1, len(self.n_neurons)):
+            model.add(Dense(self.n_neurons[i], activation=self.activations[i]))
+
+        model.add(Dense(1, activation=self.activations[-1]))
+        model.compile(loss=self.loss_fun, optimizer=self.optimizer)
+
+        return model
     def predict_output(self, state):
        """
        Predicts score output from a given state
@@ -53,11 +73,11 @@ class DQNAgent:
        return self.model.predict(state)[0]
 
     def act(self, state):
-      """
-      Finds action using epsilon-greedy strategy
+        """
+        Finds action using epsilon-greedy strategy
 
-      Parameters:
-      - state (np.array): The current state of the environment
+        Parameters:
+        - state (np.array): The current state of the environment
 
       Returns:
       - score (int): The expected score from a certain state
@@ -86,7 +106,7 @@ class DQNAgent:
         - next_state (np.array): The state of the environment after taking the action
         - done (bool): Whether the episode has ended.
         """
-
+        self.mem.append((state, next_state, reward, done))
 
     def train(self):
         """
