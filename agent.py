@@ -1,17 +1,23 @@
+from keras import Model
+from keras import Sequential
+from tensorflow.python.keras.layers import Dense
+from collections import deque
+import numpy as np
+import random
+
 class DQNAgent:
     """
     Agent that learns to play Tetris using the quality value function
 
     Parameters:
     - state_size (int): The size of the input state from the environment
-    - action_size (int): Number of actions agent can take
-    - buffer_size (int, optional): Size of replay buffer
-    - batch_size (int, optional): Size of sampled batch from replay buffer
-    - gamma (float, optional): Discount factor
-    - learning_rate (float, optional): Learning rate
-    - epsilon (float, optional): Exploration rate
-    - epsilon_min (float, optional): Minimum exploration rate
-    - epsilon_decay (float, optional): Exploration decay rate
+    - buffer_size (int): Size of replay buffer
+    - batch_size (int): Size of sampled batch from replay buffer
+    - gamma (float): Discount factor
+    - learning_rate (float): Learning rate
+    - epsilon (float): Exploration rate
+    - epsilon_min (float): Minimum exploration rate
+    - epsilon_decay (float): Exploration decay rate
 
     Methods:
     - act(state): Use epsilon-greedy policy to play action based on the current state
@@ -19,11 +25,27 @@ class DQNAgent:
     - train(): Sample batch of experiences and train in replay buffer while updating QNN
     """
 
-    def __init__(self, state_size,action_size,
+    def __init__(self, state_size,
                   buffer_size, batch_size, gamma, 
                   learning_rate, epsilon, 
                   epsilon_min, epsilon_decay):
-      pass
+      
+      self.discount = gamma
+      self.state_size = state_size
+      self.batch_size = batch_size
+      self.buffer_size = buffer_size
+      self.epsilon = epsilon
+      self.epsilon_min = epsilon_min
+      self.epsilon_decay = epsilon_decay
+      self.learning_rate = learning_rate
+
+      self.model = self.build_model()
+    
+    def build_model(self):
+       """
+       Builds a Keras dense neural network
+       """
+
 
     def act(self, state):
       """
