@@ -23,11 +23,6 @@ class DQNAgent:
     - activations (list): list of activations used in each inner layer
     - loss_fun (obj): loss function object
     - optimizer (obj): optimizer object
-
-    Methods:
-    - act(state): Use epsilon-greedy policy to play action based on the current state
-    - remember(state, action, reward, next_state, done): Store experience in replay buffer
-    - train(): Sample batch of experiences and train in replay buffer while updating QNN
     """
 
     def __init__(self, state_size,
@@ -66,6 +61,7 @@ class DQNAgent:
         model.compile(loss=self.loss_fun, optimizer=self.optimizer)
 
         return model
+    
     def predict_output(self, state):
        """
        Predicts score output from a given state
@@ -108,9 +104,40 @@ class DQNAgent:
         """
         self.mem.append((state, next_state, reward, done))
 
-    def train(self):
+    def train(self, epochs = 5):
         """
         Samples batch of experiences and train them
-
         """
-        pass
+        n = len(self.mem)
+
+        ### CHECK IF CONDITION GOOD ### 
+        if n >= self.batch_size and n >= self.buffer_size:
+            batch = random.sample(self.mem, self.batch_size)
+            
+            next_states = np.array((x[1] for x in batch))
+
+            # Generate Q-values for every possible next states
+            next_q_values = []
+            for x in self.model.predict(next_states):
+                next_q_values.append(x[0])
+            
+            X = []
+            Y = []
+
+            # batch has parameters (current_state, action, next_state, reward, done)
+            for i, (current_state, action, next_state, reward, done) in enumerate(batch):
+                if done:
+                    new_q_value= reward
+                else:
+                    # reward for taking in a state + discount rate * (max reward from future)
+                    new_q_value = reward + self.discount * np.max(next_q_values[i])
+            
+                X.append(current_state)
+                Y.append(new_q_value)
+              
+            # Fit model
+            self.model.fit(np.array(x), np.array(y), batch_size = self.batch_size, epochs = epochs)
+
+            # Update epsilon
+            if self.epsilon > self.epsilon_min:
+                self.epsilon -= self.epsilon_decay
