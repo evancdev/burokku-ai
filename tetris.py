@@ -3,6 +3,7 @@ import cv2
 import numpy as np
 from PIL import Image
 
+
 class Tetris:
     BOARD_WIDTH = 10
     BOARD_HEIGHT = 20
@@ -30,7 +31,7 @@ class Tetris:
 
     def __init__(self):
         self.reset()
-    
+
     def reset(self):
         self.board = np.zeros(
             (Tetris.BOARD_HEIGHT, Tetris.BOARD_WIDTH), dtype=int)
@@ -127,6 +128,8 @@ class Tetris:
         if render:
             self.render()
 
+        return self.score, self.game_over
+
     def check_collision(self, piece, pos):
         '''Checks for collisions with the board boundaries and other blocks'''
 
@@ -214,19 +217,19 @@ class Tetris:
                        for row in board_copy], dtype=np.uint8)
         img = Image.fromarray(img, 'RGB').resize(
             (Tetris.BOARD_WIDTH * 25, Tetris.BOARD_HEIGHT * 25), Image.NEAREST)
-        
+
         img = np.array(img)
         # Add the score text to the image
         score_text = f"Score: {self.score}"
         cv2.putText(
-            img,                      
-            score_text,                
-            (10, 490),                        
-            cv2.FONT_HERSHEY_SIMPLEX,         
-            1,                             
-            (0, 0, 255),              
-            2,                         
-            cv2.LINE_AA                      
+            img,
+            score_text,
+            (10, 490),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            1,
+            (0, 0, 255),
+            2,
+            cv2.LINE_AA
         )
 
         # Show the game using OpenCV
@@ -243,6 +246,9 @@ class Tetris:
     def set_board(self, nboard):
         '''Sets the current board to nboard. Used for debugging'''
         self.board = np.array(nboard)
+
+    def get_score(self):
+        return self.score
 
     # STATISTICS
 
@@ -279,7 +285,7 @@ class Tetris:
             heights.append(height)
 
         return sum(heights)
-    
+
     def get_next_states(self):
         '''
         Finds every possible valid move that you can do with the current state of the board. Includes the current column and rotation
@@ -309,33 +315,35 @@ class Tetris:
                     self.game.board = self.game.add_piece(rotated_piece, pos)
 
                     # Add to possible states
-                    states[(col, rotation)] = self.get_board_properties(self.game.board)
+                    states[(col, rotation)] = self.get_board_properties(
+                        self.game.board)
 
         return states
-    
+
     def get_board_properties(self):
         """
         Returns all statistics of curent board and properties
         """
-        
+
         lines_cleared = self.lines_cleared
         aggregated_height = self.calculate_aggregated_height()
         total_holes = self.calculate_holes()
         bumpiness = self.calculate_bumpiness()
-        
+
         return [lines_cleared, aggregated_height, total_holes, bumpiness]
 
     # DQN
 
-    def step(self, action, render = True):
+    def step(self, action, render=True):
         x_pos, rotation = action
-        if x_pos < 0 or x_pos + self.curr_piece.shape[1] > Tetris.BOARD_WIDTH: # Check if shape is valid to place based on its width and if it may cross boundaries
+        # Check if shape is valid to place based on its width and if it may cross boundaries
+        if x_pos < 0 or x_pos + self.curr_piece.shape[1] > Tetris.BOARD_WIDTH:
             return
         self.curr_pos = [x_pos, 0]
         self.rotate_piece(rotation)
         while not self.check_collision(self.curr_piece, self.curr_pos):
             self.curr_pos[1] += 1
-        self.curr_pos[1] -=1
+        self.curr_pos[1] -= 1
         self.board = self.add_piece(self.curr_piece, self.curr_pos)
         self.update_score()
         if render:
@@ -368,6 +376,7 @@ class Tetris:
         return bumpiness
 
 # Testing
+
 
 if __name__ == "__main__":
     game = Tetris()
