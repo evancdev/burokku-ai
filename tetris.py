@@ -34,6 +34,7 @@ class Tetris:
     def reset(self):
         self.board = np.zeros(
             (Tetris.BOARD_HEIGHT, Tetris.BOARD_WIDTH), dtype=int)
+
         # self.board = np.array([
         #     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         #     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -103,10 +104,10 @@ class Tetris:
 
         # Drop the Tetromino gradually until it collides
         while not self.check_collision(self.curr_piece, self.curr_pos):
-            # if render:
-            #     self.render()  # Render the game to show the piece moving
-            #     if delay:
-            #         sleep(delay)  # Add a delay to simulate falling
+            if render:
+                self.render()  # Render the game to show the piece moving
+                if delay:
+                    sleep(delay)  # Add a delay to simulate falling
 
             # Increment the Y position to simulate falling
             self.curr_pos[1] += 1
@@ -326,26 +327,26 @@ class Tetris:
 if __name__ == "__main__":
     game = Tetris()
 
-    board1 = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-              [0, 0, 0, 0, 1, 1, 0, 0, 0, 0],
-              [0, 1, 1, 1, 1, 1, 1, 0, 0, 1],
-              [0, 1, 1, 0, 1, 1, 1, 1, 1, 1],
-              [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-              [1, 1, 1, 0, 1, 1, 1, 1, 1, 1],
-              [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]]
+    # board1 = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    #           [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    #           [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    #           [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    #           [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    #           [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    #           [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    #           [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    #           [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    #           [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    #           [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    #           [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    #           [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    #           [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    #           [0, 0, 0, 0, 1, 1, 0, 0, 0, 0],
+    #           [0, 1, 1, 1, 1, 1, 1, 0, 0, 1],
+    #           [0, 1, 1, 0, 1, 1, 1, 1, 1, 1],
+    #           [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    #           [1, 1, 1, 0, 1, 1, 1, 1, 1, 1],
+    #           [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]]
 
-    game.set_board(board1)
-    print(game.board)
+    # game.set_board(board1)
+    # print(game.board)
