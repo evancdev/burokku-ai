@@ -315,8 +315,7 @@ class Tetris:
                     self.game.board = self.game.add_piece(rotated_piece, pos)
 
                     # Add to possible states
-                    states[(col, rotation)] = self.get_board_properties(
-                        self.game.board)
+                    states[(col, rotation)] = self.get_board_properties()
 
         return states
 
