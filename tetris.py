@@ -2,6 +2,7 @@ import random
 import cv2
 import numpy as np
 from PIL import Image
+from time import sleep
 
 
 class Tetris:
@@ -90,8 +91,7 @@ class Tetris:
         '''Rotates the current piece 90 degrees counterclockwise'''
         rotated_piece = np.rot90(self.curr_piece, k=rotation)
 
-        if not self.check_collision(rotated_piece, self.curr_pos):
-            self.curr_piece = rotated_piece
+        self.curr_piece = rotated_piece
 
 
     def play(self, x_pos, render=False, delay=None):
@@ -172,13 +172,9 @@ class Tetris:
             piece_height, piece_width = piece.shape
             board = self.board.copy()
             for i in range(piece_height):
-                print(i)
                 for j in range(piece_width):
-                    print(j)
-                    print(piece[i,j])
                     if piece[i, j] == 1:
                         board[pos[1] + i, pos[0] + j] = 1
-                        print("this worked")
 
             # Check game over condition
             if self.check_collision(self.curr_piece, self.curr_pos):
@@ -195,20 +191,21 @@ class Tetris:
     def update_score(self):
         '''Updates score after clearing full rows'''
 
-        full_rows = self.clean_rows()
+        full_rows, board = self.clean_rows(self.board)
+        self.board = board
         if full_rows:
             self.score += 1 * (2 ** (full_rows - 1))
 
-    def clean_rows(self):
+    def clean_rows(self, board):
         '''Clears full rows and shifts the rest down'''
 
-        full_rows = [i for i, row in enumerate(self.board) if np.all(row)]
+        full_rows = [i for i, row in enumerate(board) if np.all(row)]
         for row_index in full_rows:
-            self.board = np.delete(self.board, row_index, axis=0)
+            board = np.delete(board, row_index, axis=0)
             new_row = np.zeros((1, Tetris.BOARD_WIDTH), dtype=int)
-            self.board = np.vstack([new_row, self.board])
+            board = np.vstack([new_row, board])
         self.lines_cleared += len(full_rows)
-        return len(full_rows)
+        return len(full_rows), board
 
     def render(self):
         '''Renders the current game board'''
@@ -266,7 +263,7 @@ class Tetris:
         return self.curr_piece
     # STATISTICS
 
-    def calculate_holes(self):
+    def calculate_holes(self, board):
         '''
         Given a board, calculate the number of holes that exist within the board.
         A "hole" is defined when there exists an empty pixel and there exists a placed pixel above it in the same column.
@@ -277,8 +274,8 @@ class Tetris:
 
         for x in range(Tetris.BOARD_HEIGHT):
             for y in range(Tetris.BOARD_WIDTH):
-                if self.board[x, y] == 0:
-                    if 1 in self.board[:x, y]:
+                if board[x, y] == 0:
+                    if 1 in board[:x, y]:
                         # print(board[:y, x])
                         col_holes[x] += 1
 
@@ -286,11 +283,11 @@ class Tetris:
         holes = sum(col_holes)
         return holes
 
-    def calculate_aggregated_height(self):
+    def calculate_aggregated_height(self, board):
         ''' Computes the aggregated height and returns it.'''
         heights = []
         for col in range(Tetris.BOARD_WIDTH):
-            column_tiles = self.board[:, col]
+            column_tiles = board[:, col]
             non_zero = np.where(column_tiles > 0)[0]
             if len(non_zero) > 0:
                 height = Tetris.BOARD_HEIGHT - non_zero[0]
@@ -332,21 +329,21 @@ class Tetris:
                     self.board = self.add_piece(rotated_piece, pos)
 
                     # Add to possible states
-                    states[(col, rotation)] = self.get_board_properties()
+                    states[(col, rotation)] = self.get_board_properties(self.board)
 
                 self.board = temp_board
 
         return states
 
-    def get_board_properties(self):
+    def get_board_properties(self, board):
         """
         Returns all statistics of curent board and properties
         """
 
-        lines_cleared = self.lines_cleared
-        aggregated_height = self.calculate_aggregated_height()
-        total_holes = self.calculate_holes()
-        bumpiness = self.calculate_bumpiness()
+        lines_cleared, _ = self.clean_rows(board)
+        aggregated_height = self.calculate_aggregated_height(board)
+        total_holes = self.calculate_holes(board)
+        bumpiness = self.calculate_bumpiness(board)
 
         return [lines_cleared, aggregated_height, total_holes, bumpiness]
 
@@ -372,7 +369,7 @@ class Tetris:
             self.score -= 2
         return self.score, self.game_over
 
-    def calculate_bumpiness(self):
+    def calculate_bumpiness(self, board):
         '''
         Given a board, calculate the difference of heights between two adjacent columns.
         An undesirable board is one where there exists deep "wells"
@@ -383,7 +380,7 @@ class Tetris:
         for x in range(Tetris.BOARD_WIDTH):
             for y in range(Tetris.BOARD_HEIGHT):
                 # Finds the nearest pixel in iterated column and find its height before breaking and iterating to next column.
-                if self.board[y, x] == 1:
+                if board[y, x] == 1:
                     col_heights[x] = Tetris.BOARD_HEIGHT - y
                     break
 
@@ -442,12 +439,13 @@ if __name__ == "__main__":
                 [1, 1, 1, 1, 1, 1, 1, 1, 0, 1]]
 
     game.set_board(board1)
-    game.set_curr(0)
+    game.set_curr(6)
     print(game.curr_piece)
     print(game.board)
     game.rotate_piece(1)
-    print(game.curr_piece.shape)
-    game.board = game.add_piece(game.curr_piece, [8,16])
-    print(game.update_score())
-    print(game.get_board_properties())
+    print(game.curr_piece)
+    # print(game.get_next_states())
+    # game.board = game.add_piece(game.curr_piece, [8,16])
+    # print(game.update_score())
+    # print(game.get_board_properties(game.board))
     # print(game.get_next_states())

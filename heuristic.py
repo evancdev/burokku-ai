@@ -10,10 +10,12 @@ class TetrisAI:
     def evaluate_board(self):
         ''' Evaluates the current board state using a weighted heuristic function '''
 
-        agg_height = self.game.calculate_aggregated_height()
-        holes = self.game.calculate_holes()
-        bumpiness = self.game.calculate_bumpiness()
-        cleared = self.game.clean_rows()
+        board = self.game.board
+
+        agg_height = self.game.calculate_aggregated_height(board)
+        holes = self.game.calculate_holes(board)
+        bumpiness = self.game.calculate_bumpiness(board)
+        cleared, _= self.game.clean_rows(board)
 
         # Heuristic weights
         score = (-0.5 * agg_height) + (-0.7 * holes) + \

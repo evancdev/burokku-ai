@@ -50,22 +50,27 @@ class TestClass(unittest.TestCase):
     def test_calculate_bumpiness(self):
         game = Tetris()
         game.set_board(TestClass.board1)
-        self.assertEqual(6, Tetris.calculate_bumpiness(game))
+        board = game.board
+        self.assertEqual(6, Tetris.calculate_bumpiness(game, board))
 
     def test_calculate_aggregated_height(self):
         game = Tetris()
         game.set_board(TestClass.board1)
-        self.assertEqual(48, Tetris.calculate_aggregated_height(game))
+        board = game.board
+        self.assertEqual(48, Tetris.calculate_aggregated_height(game, board))
 
     def test_calculate_holes(self):
         game = Tetris()
         game.set_board(TestClass.board1)
-        self.assertEqual(2, Tetris.calculate_holes(game))
+        board = game.board
+        self.assertEqual(2, Tetris.calculate_holes(game, board))
 
     def test_clean_rows(self):
         game = Tetris()
         game.set_board(TestClass.board1)
-        self.assertEqual(2, Tetris.clean_rows(game))
+        board = game.board
+        rows_cleaned, _ = Tetris.clean_rows(game, board)
+        self.assertEqual(2, rows_cleaned)
 
 
 if __name__ == "__main__":

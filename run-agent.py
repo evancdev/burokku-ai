@@ -23,6 +23,28 @@ class AgentParam:
 
 def run_dqn(agentparam: AgentParam):
     tetris = Tetris()
+    # board1 = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    #         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    #         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    #         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    #         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    #         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    #         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    #         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    #         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    #         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    #         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    #         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    #         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    #         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    #         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    #         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    #         [1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
+    #         [1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
+    #         [1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
+    #         [1, 1, 1, 1, 1, 1, 1, 1, 0, 1]]
+    # tetris.set_board(board1)
+    # tetris.set_curr(0)
     scores = []
 
     agent = DQNAgent(
@@ -60,7 +82,11 @@ def run_dqn(agentparam: AgentParam):
                     best_action = action
             print("BEST ACTION", best_action)
             print("0TH INDEX", best_action[0])
+            print("BEFORE")
+            print(tetris.curr_piece)
             tetris.rotate_piece(best_action[1])
+            print("ROTATED")
+            print(tetris.curr_piece)
             reward, done = tetris.play(best_action[0])
             agent.remember(curr_state, next_states[best_action], reward, done)
             curr_state = next_states[best_action]
