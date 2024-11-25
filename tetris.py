@@ -316,6 +316,8 @@ class Tetris:
 
                     # Add to possible states
                     states[(col, rotation)] = self.get_board_properties()
+                
+                self.board = temp_board
 
         return states
 
