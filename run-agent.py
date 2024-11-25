@@ -19,32 +19,12 @@ class AgentParam:
         self.epsilon_stop_episode = 2000
         self.max_steps = 1000
         self.episodes = 2000
+        self.epochs = 1
+        self.replay_start_size = 2000
 
 
 def run_dqn(agentparam: AgentParam):
     tetris = Tetris()
-    # board1 = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #         [1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
-    #         [1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
-    #         [1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
-    #         [1, 1, 1, 1, 1, 1, 1, 1, 0, 1]]
-    # tetris.set_board(board1)
-    # tetris.set_curr(0)
     scores = []
 
     agent = DQNAgent(
@@ -58,7 +38,8 @@ def run_dqn(agentparam: AgentParam):
         activations=agentparam.activations,
         loss_fun=agentparam.loss_fun,
         optimizer=agentparam.optimizer,
-        epsilon_stop_episode=agentparam.epsilon_stop_episode
+        epsilon_stop_episode=agentparam.epsilon_stop_episode,
+        replay_start_size = agentparam.replay_start_size
     )
 
     for episode in tqdm(range(agentparam.episodes)):
@@ -68,6 +49,7 @@ def run_dqn(agentparam: AgentParam):
 
         while not done and (agentparam.max_steps != 0 or step < agentparam.max_steps):
             next_states = tetris.get_next_states()
+<<<<<<< HEAD
             best_state = agent.get_best_state(list(next_states.keys()))
             print("best_state", best_state)
 
@@ -78,6 +60,34 @@ def run_dqn(agentparam: AgentParam):
             step += 1
 
         agent.train()
+=======
+
+            if next_states == {}:
+                break
+
+            print("next_states", next_states)
+            best_state = agent.get_best_state(list(next_states.values()))
+            print("best_state", best_state)
+
+            # Find the action that leads to the best state
+            best_action = None
+            for action, state in next_states.items():
+                if state == best_state:
+                    best_action = action
+            # print("BEST ACTION", best_action)
+            # print("0TH INDEX", best_action[0])
+            # print("BEFORE")
+            # print(tetris.curr_piece)
+            tetris.rotate_piece(best_action[1])
+            # print("ROTATED")
+            # print(tetris.curr_piece)
+            reward, done = tetris.play(best_action[0])
+            agent.remember(curr_state, next_states[best_action], reward, done)
+            curr_state = next_states[best_action]
+            step += 1
+        agent.train(batch_size=agentparam.batch_size, epochs=agentparam.epochs)
+
+>>>>>>> cb08e87b500e07b23af9099f6bf95bc73a250ee5
 
 
 if __name__ == "__main__":
