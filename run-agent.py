@@ -6,7 +6,7 @@ from tqdm import tqdm
 
 class AgentParam:
     def __init__(self):
-        self.discount = 0.9
+        self.discount = 0.95
         self.state_size = 4
         self.batch_size = 512
         self.buffer_size = 1000
@@ -66,32 +66,18 @@ def run_dqn(agentparam: AgentParam):
         done = False
         step = 0
 
-        while not done and (agentparam.max_steps == 0 or step < agentparam.max_steps):
-            print(tetris.get_piece())
-            print(tetris.board)
-            print(tetris.curr_piece)
+        while not done and (agentparam.max_steps != 0 or step < agentparam.max_steps):
             next_states = tetris.get_next_states()
-            print("next_states", next_states)
-            best_state = agent.get_best_state(list(next_states.values()))
+            best_state = agent.get_best_state(list(next_states.keys()))
             print("best_state", best_state)
 
-            # Find the action that leads to the best state
-            best_action = None
-            for action, state in next_states.items():
-                if state == best_state:
-                    best_action = action
-            print("BEST ACTION", best_action)
-            print("0TH INDEX", best_action[0])
-            print("BEFORE")
-            print(tetris.curr_piece)
-            tetris.rotate_piece(best_action[1])
-            print("ROTATED")
-            print(tetris.curr_piece)
-            reward, done = tetris.play(best_action[0])
-            agent.remember(curr_state, next_states[best_action], reward, done)
-            curr_state = next_states[best_action]
+            tetris.rotate_piece(best_state[1])
+            reward, done = tetris.play(best_state[0], render=True)
+            agent.remember(curr_state, best_state, reward, done)
+            curr_state = best_state
             step += 1
-            agent.train()
+
+        agent.train()
 
 
 if __name__ == "__main__":
