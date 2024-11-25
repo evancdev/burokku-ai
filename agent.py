@@ -85,10 +85,31 @@ class DQNAgent:
         """
 
         if random.random() <= self.epsilon:
-            return self.random_qvalue()
+            return self.random_output()
         else:
             state = np.reshape(state, [1, self.state_size]) # First dim represents batch size of one
             return self.predict_output(state)
+        
+    def get_best_state(self, states):
+        """
+        Out of all states, return the best state, meaning the best piece and rotation to place
+        """
+        if random.random() <= self.epsilon:
+            return random.choice(list(states)) # If random value is leq exploration variable, choose randomly from available states
+        
+        else:
+            max_val = float("-inf")
+            best_state = None
+
+            for state in states:
+                value = self.predict_output(np.reshape(state, [1, self.state_size]))
+                if value > max_val:
+                    max_val = value
+                    best_state = state
+
+        return best_state
+        
+
       
     def random_output(self):
        """
