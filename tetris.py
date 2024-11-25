@@ -279,6 +279,51 @@ class Tetris:
             heights.append(height)
 
         return sum(heights)
+    
+    def get_next_states(self):
+        '''
+        Finds every possible valid move that you can do with the current state of the board. Includes the current column and rotation
+        '''
+
+        states = {}
+
+        # Itearate all 4 rotations including 0 rotation
+        for rotation in range(4):
+
+            rotated_piece = np.rot90(self.game.curr_piece, rotation)
+
+            # Place piece in every column and calculate the board state
+
+            for col in range(Tetris.BOARD_WIDTH):
+                # Init temporary board as default before evaluating
+                temp_board = self.game.board.copy()
+                pos = [col, 0]
+
+                # Drop piece until collision
+                while not self.game.check_collision(rotated_piece, pos):
+                    pos[1] += 1
+                pos[1] -= 1  # Move back up after the collision
+
+                # Check if final position is valid
+                if not self.game.check_collision(rotated_piece, pos):
+                    self.game.board = self.game.add_piece(rotated_piece, pos)
+
+                    # Add to possible states
+                    states[(col, rotation)] = self.get_board_properties(self.game.board)
+
+        return states
+    
+    def get_board_properties(self):
+        """
+        Returns all statistics of curent board and properties
+        """
+        
+        lines_cleared = self.lines_cleared
+        aggregated_height = self.calculate_aggregated_height()
+        total_holes = self.calculate_holes()
+        bumpiness = self.calculate_bumpiness()
+        
+        return [lines_cleared, aggregated_height, total_holes, bumpiness]
 
     # DQN
 
