@@ -45,18 +45,21 @@ def run_dqn(agentparam: AgentParam):
         step = 0
 
         while not done and (agentparam.max_steps == 0 or step < agentparam.max_steps):
+            print(tetris.get_piece())
             print(tetris.board)
             next_states = tetris.get_next_states()
             print("next_states", next_states)
             best_state = agent.get_best_state(list(next_states.values()))
-            print(best_state)
+            print("best_states", best_state)
 
             # Find the action that leads to the best state
             best_action = None
             for action, state in next_states.items():
                 if state == best_state:
                     best_action = action
-            reward, done = tetris.play(best_action[0])
+            print("best_action", best_action)
+            tetris.rotate_piece(best_action[1])
+            reward, done = tetris.play(best_action[0], render=True)
             agent.remember(curr_state, next_states[best_action], reward, done)
             curr_state = next_states[best_action]
             step += 1
