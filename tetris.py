@@ -88,11 +88,11 @@ class Tetris:
 
     def rotate_piece(self, rotation):
         '''Rotates the current piece 90 degrees counterclockwise'''
-
         rotated_piece = np.rot90(self.curr_piece, k=rotation)
 
         if not self.check_collision(rotated_piece, self.curr_pos):
             self.curr_piece = rotated_piece
+
 
     def play(self, x_pos, render=False, delay=None):
         '''Handles the game logic for placing pieces'''
@@ -118,6 +118,9 @@ class Tetris:
 
         # Place the piece on the board
         self.board = self.add_piece(self.curr_piece, self.curr_pos)
+        if self.game_over:
+                return self.score, self.game_over
+
 
         # Update the score based on cleared rows
         self.update_score()
@@ -165,9 +168,13 @@ class Tetris:
             piece_height, piece_width = piece.shape
             board = self.board.copy()
             for i in range(piece_height):
+                print(i)
                 for j in range(piece_width):
+                    print(j)
+                    print(piece[i,j])
                     if piece[i, j] == 1:
                         board[pos[1] + i, pos[0] + j] = 1
+                        print("this worked")
 
             # Check game over condition
             if self.check_collision(self.curr_piece, self.curr_pos):
@@ -175,7 +182,8 @@ class Tetris:
 
             return board
 
-        except:
+        except Exception as e:
+            return e
             print(pos)
             print(self.board)
             print(self.curr_piece)
@@ -296,6 +304,9 @@ class Tetris:
         # Itearate all 4 rotations including 0 rotation
         for rotation in range(4):
 
+            if np.array_equal(self.curr_piece, Tetris.TETROMINOS[0]) and rotation > 1:
+                continue
+
             rotated_piece = np.rot90(self.curr_piece, rotation)
 
             # Place piece in every column and calculate the board state
@@ -403,5 +414,34 @@ if __name__ == "__main__":
     #           [1, 1, 1, 0, 1, 1, 1, 1, 1, 1],
     #           [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]]
 
-    # game.set_board(board1)
-    # print(game.board)
+    board1 = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
+                [1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
+                [1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
+                [1, 1, 1, 1, 1, 1, 1, 1, 0, 1]]
+
+    game.set_board(board1)
+    game.set_curr(0)
+    print(game.curr_piece)
+    print(game.board)
+    game.rotate_piece(1)
+    print(game.curr_piece.shape)
+    game.board = game.add_piece(game.curr_piece, [8,16])
+    print(game.update_score())
+    print(game.get_board_properties())
+    # print(game.get_next_states())
