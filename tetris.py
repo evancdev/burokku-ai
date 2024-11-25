@@ -122,6 +122,10 @@ class Tetris:
                 return self.score, self.game_over
 
 
+        if (self.game_over):
+            self.reset()
+            return -1, True
+
         # Update the score based on cleared rows
         self.update_score()
 
@@ -258,6 +262,8 @@ class Tetris:
     def get_score(self):
         return self.score
 
+    def get_piece(self):
+        return self.curr_piece
     # STATISTICS
 
     def calculate_holes(self):
@@ -327,7 +333,7 @@ class Tetris:
 
                     # Add to possible states
                     states[(col, rotation)] = self.get_board_properties()
-                
+
                 self.board = temp_board
 
         return states

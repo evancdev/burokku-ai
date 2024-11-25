@@ -45,6 +45,7 @@ def run_dqn(agentparam: AgentParam):
         step = 0
 
         while not done and (agentparam.max_steps == 0 or step < agentparam.max_steps):
+            print(tetris.get_piece())
             print(tetris.board)
             print(tetris.curr_piece)
             next_states = tetris.get_next_states()
