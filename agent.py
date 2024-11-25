@@ -14,7 +14,7 @@ class DQNAgent:
     - state_size (int): The size of the input state from the environment
     - buffer_size (int): Size of replay buffer
     - batch_size (int): Size of sampled batch from replay buffer
-    - gamma (float): Discount factor
+    - discount(float): Discount factor
     - learning_rate (float): Learning rate
     - epsilon (float): Exploration rate
     - epsilon_min (float): Minimum exploration rate
@@ -26,11 +26,11 @@ class DQNAgent:
     """
 
     def __init__(self, state_size,
-                 buffer_size, batch_size, gamma,
+                 buffer_size, batch_size, discount,
                  learning_rate, epsilon,
                  epsilon_min, epsilon_decay, n_neurons, activations, loss_fun, optimizer):
 
-        self.discount = gamma
+        self.discount = discount
         self.state_size = state_size
         self.batch_size = batch_size
         self.buffer_size = buffer_size
