@@ -296,23 +296,23 @@ class Tetris:
         # Itearate all 4 rotations including 0 rotation
         for rotation in range(4):
 
-            rotated_piece = np.rot90(self.game.curr_piece, rotation)
+            rotated_piece = np.rot90(self.curr_piece, rotation)
 
             # Place piece in every column and calculate the board state
 
             for col in range(Tetris.BOARD_WIDTH):
                 # Init temporary board as default before evaluating
-                temp_board = self.game.board.copy()
+                temp_board = self.board.copy()
                 pos = [col, 0]
 
                 # Drop piece until collision
-                while not self.game.check_collision(rotated_piece, pos):
+                while not self.check_collision(rotated_piece, pos):
                     pos[1] += 1
                 pos[1] -= 1  # Move back up after the collision
 
                 # Check if final position is valid
-                if not self.game.check_collision(rotated_piece, pos):
-                    self.game.board = self.game.add_piece(rotated_piece, pos)
+                if not self.check_collision(rotated_piece, pos):
+                    self.board = self.add_piece(rotated_piece, pos)
 
                     # Add to possible states
                     states[(col, rotation)] = self.get_board_properties()
