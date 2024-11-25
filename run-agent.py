@@ -18,28 +18,45 @@ class AgentParam():
         self.optimizer = 'adam'
         self.epsilon_stop_episode = 2000
         self.max_steps = 1000
-        self.episode = 2000
+        self.episodes = 2000  
 
 
-def run_dqn(agent: DQNAgent):
+
+def run_dqn(agentparam : AgentParam):
     # Run dqn with Tetris game
     tetris = Tetris()
     heur_tetris = TetrisAI(tetris)
     scores = []
-    for episodes in tqdm(range(agent.episodes)):
+
+    agent = DQNAgent(
+    discount = agentparam.discount,
+    state_size = agentparam.state_size,
+    batch_size = agentparam.batch_size,
+    buffer_size = agentparam.buffer_size,
+    epsilon = agentparam.epsilon,
+    epsilon_min = agentparam.epsilon_min,
+    n_neurons = agentparam.n_neurons,
+    activations = agentparam.activations,
+    loss_fun = agentparam.loss_fun,
+    optimizer = agentparam.optimizer,
+    epsilon_stop_episode = agentparam.epsilon_stop_episode
+    )   
+
+    for episodes in tqdm(range(agentparam.episodes)):
         curr_state = tetris.reset()
         done = False
         step = 0
 
-        while not done and (not agent.max_steps or step < agent.max_steps):
+        while not done and (not agentparam.max_steps or step < agentparam.max_steps):
             next_states = tetris.get_next_states()
             best_state = heur_tetris.best_move()
 
-            best_action = None
-            for action, state in next_states.items():
-                if state == best_state:
-                    best_action = action
-                    break
+
+            # best_action = None
+            # for pos, rotation in next_states.items():
+            #     if (pos, rotation) == best_state:
+            #         best_action = best
+            #         break
 
             piece = tetris.rotate_piece(best_action[1])
             reward, done = tetris.play(best_action[0])
@@ -54,17 +71,5 @@ def run_dqn(agent: DQNAgent):
 
 if __name__ == "__main__":
     agentparam = AgentParam()
-    agent = DQNAgent(
-        discount=agentparam.discount,
-        state_size=agentparam.state_size,
-        batch_size=agentparam.batch_size,
-        buffer_size=agentparam.buffer_size,
-        epsilon=agentparam.epsilon,
-        epsilon_min=agentparam. epsilon_min,
-        n_neurons=agentparam.n_neurons,
-        activations=agentparam.activations,
-        loss_fun=agentparam.loss_fun,
-        optimizer=agentparam.optimizer,
-        epsilon_stop_episode=agentparam.epsilon_stop_episode
-    )
-    run_dqn(agent)
+
+    run_dqn(agentparam)
