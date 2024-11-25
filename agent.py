@@ -1,6 +1,6 @@
 from keras import Model
 from keras import Sequential
-from keras.layers import Dense
+from keras.layers import Dense # type: ignore
 from collections import deque
 import numpy as np
 import random
@@ -14,12 +14,12 @@ class DQNAgent:
     - state_size (int): The size of the input state from the environment
     - buffer_size (int): Size of replay buffer
     - batch_size (int): Size of sampled batch from replay buffer
-    - gamma (float): Discount factor
+    - discount (float): Discount factor
     - epsilon (float): Exploration rate
     - epsilon_min (float): Minimum exploration rate
     - epsilon_decay (float): Exploration decay rate
     - epsilon_stop_episode (int): What episode does agent stop decr. epsilon
-
+    - min_replay
     - n_neurons (list(int)): list of number of neurons in each inner layer
     - activations (list): list of activations used in each inner layer
     - loss_fun (obj): loss function object
@@ -28,7 +28,7 @@ class DQNAgent:
 
     def __init__(self, state_size, buffer_size, batch_size, 
                 discount, epsilon, epsilon_min, epsilon_stop_episode,
-                n_neurons, activations, loss_fun, optimizer):
+                n_neurons, activations, loss_fun, optimizer, replay_start_size):
 
         self.discount = discount
         self.state_size = state_size
@@ -42,6 +42,7 @@ class DQNAgent:
         self.activations = activations
         self.loss_fun = loss_fun
         self.optimizer = optimizer
+        self.replay_start_size = replay_start_size
 
         self.model = self.build_model()
 
@@ -130,41 +131,41 @@ class DQNAgent:
         """
         self.mem.append((state, next_state, reward, done))
 
-    def train(self, epochs = 5):
-        """
-        Samples batch of experiences and train them
-        """
-        n = len(self.mem)
+    def train(self, batch_size=32, epochs=3):
+            """Samples batch of experiences and train them"""
+            n = len(self.mem)
 
-        ### CHECK IF CONDITION GOOD ### 
-        if n >= self.batch_size and n >= self.buffer_size:
-            batch = random.sample(self.mem, self.batch_size)
-            
-            next_states = np.array((x[1] for x in batch))
+            if n >= self.replay_start_size and n >= batch_size:
 
-            # Generate Q-values for every possible next states
-            next_q_values = []
-            for x in self.model.predict(next_states):
-                next_q_values.append(x[0])
-            
-            X = []
-            Y = []
+                batch = random.sample(self.mem, batch_size)
 
-            # batch has parameters (current_state, action, next_state, reward, done)
-            for i, (current_state, action, next_state, reward, done) in enumerate(batch):
-                if done:
-                    new_q_value= reward
-                else:
-                    # reward for taking in a state + discount rate * (max reward from future)
-                    new_q_value = reward + self.discount * np.max(next_q_values[i])
-            
-                X.append(current_state)
-                Y.append(new_q_value)
-              
-            # Fit model
-            self.model.fit(np.array(x), np.array(y), batch_size = self.batch_size, epochs = epochs)
+                next_states = []
+                for x in batch:
+                    next_states.append(x[1])
+                next_states = np.array(next_states)
 
-            # Update epsilon
-            if self.epsilon > self.epsilon_min:
-                self.epsilon -= self.epsilon_decay
+                # Generate Q-values for every possible next states
+                next_qs = []
+                for x in self.model.predict(next_states):
+                    next_qs.append(x[0])
+
+                X = []
+                Y = []
+
+                # batch has parameters (current_state, action, next_state, reward, done)
+                for i, (state, action, reward, done) in enumerate(batch):
+                    if not done:
+                        new_q_value = reward + self.discount * next_qs[i]
+                    else:
+                        new_q_value = reward
+
+                    X.append(state)
+                    Y.append(new_q_value)
+
+                # Fit model
+                self.model.fit(np.array(X), np.array(Y), batch_size = batch_size, epochs = epochs, verbose = 0)
+
+                # Update epsilon
+                if self.epsilon > self.epsilon_min:
+                    self.epsilon -= self.epsilon_decay
                 
