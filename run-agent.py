@@ -25,7 +25,6 @@ class AgentParam():
 def run_dqn(agentparam : AgentParam):
     # Run dqn with Tetris game
     tetris = Tetris()
-    heur_tetris = TetrisAI(tetris)
     scores = []
 
     agent = DQNAgent(
@@ -49,27 +48,27 @@ def run_dqn(agentparam : AgentParam):
 
         while not done and (not agentparam.max_steps or step < agentparam.max_steps):
             next_states = tetris.get_next_states()
-            best_state = heur_tetris.best_move()
+            best_state = agent.get_best_state(next_states.values())
+
+            best_action = None
+            for action, state in next_states.items():
+                if state == best_state:
+                    best_action = action
+                    break
 
 
-            # best_action = None
-            # for pos, rotation in next_states.items():
-            #     if (pos, rotation) == best_state:
-            #         best_action = best
-            #         break
-
-            piece = tetris.rotate_piece(best_action[1])
+            # print(best_action)
+            # piece = tetris.rotate_piece(best_action[1])
             reward, done = tetris.play(best_action[0])
             agent.remember(curr_state, next_states[best_action], reward, done)
             curr_state = next_states[best_action]
             step += 1
-            agent.train(batch_size=agent.batch_size,
-                        epochs=agent.epochs)
+            agent.train()
 
         scores.append(tetris.get_score())
 
 
 if __name__ == "__main__":
-    agentparam = AgentParam()
+    agentparam = AgentParam()   
 
     run_dqn(agentparam)

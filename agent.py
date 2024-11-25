@@ -117,7 +117,7 @@ class DQNAgent:
        """
        return random.random()
 
-    def remember(self, state, action, reward, next_state, done):
+    def remember(self, state, next_state, reward, done):
         """
         Store expereince in replay buffer for training
 
