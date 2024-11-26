@@ -21,7 +21,7 @@ class DQNAgent:
     - epsilon_min (float): Minimum exploration rate
     - epsilon_decay (float): Exploration decay rate
     - epsilon_stop_episode (int): What episode does agent stop decr. epsilon
-    - min_replay
+    - replay_start_size: starting size of replay buffer
     - n_neurons (list(int)): list of number of neurons in each inner layer
     - activations (list): list of activations used in each inner layer
     - loss_fun (obj): loss function object
@@ -87,23 +87,6 @@ class DQNAgent:
         """
         return self.model.predict(state, verbose=0)[0]
 
-    def act(self, state):
-        """
-        Finds action using epsilon-greedy strategy
-
-        Parameters:
-        - state (np.array): The current state of the environment
-
-        Returns:
-        - score (int): The expected score from a certain state
-        """
-
-        if random.random() <= self.epsilon:
-            return self.random_output()
-        else:
-            # First dim represents batch size of one
-            state = np.reshape(state, [1, self.state_size])
-            return self.predict_output(state)
 
     def get_best_state(self, states):
         """
