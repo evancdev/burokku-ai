@@ -63,14 +63,18 @@ def run_dqn(agentparam: AgentParam):
                 break
 
             tetris.rotate_piece(best_state[1])
-            reward, done = tetris.play(best_state[0], render=False)
+            reward, done = tetris.play(best_state[0], render=True)
             
             agent.remember(curr_state, best_state, reward, done)
             curr_state = best_state
             step += 1
 
         print(f"Training on episode {episode + 1}")
+        scores.append(tetris.get_score())
         agent.train(batch_size=agentparam.batch_size, epochs=agentparam.epochs)
+    
+    print("scores", scores)
+
 
 
 
