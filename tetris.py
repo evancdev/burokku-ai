@@ -38,6 +38,29 @@ class Tetris:
         self.board = np.zeros(
             (Tetris.BOARD_HEIGHT, Tetris.BOARD_WIDTH), dtype=int)
 
+        # self.board = np.array([
+        #     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        #     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        #     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        #     [0, 0, 1, 1, 1, 0, 0, 0, 0, 0],
+        #     [0, 1, 1, 1, 1, 0, 0, 0, 0, 0],
+        #     [0, 1, 1, 1, 1, 1, 1, 0, 1, 0],
+        #     [1, 1, 1, 1, 1, 1, 1, 0, 1, 1],
+        #     [1, 1, 1, 1, 1, 1, 1, 1, 1, 0],
+        #     [1, 1, 1, 1, 1, 1, 1, 1, 1, 0],
+        #     [1, 0, 1, 1, 1, 1, 1, 1, 1, 1],
+        #     [1, 1, 1, 1, 1, 1, 1, 0, 1, 1],
+        #     [1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
+        #     [1, 1, 0, 1, 1, 0, 1, 1, 1, 1],
+        #     [1, 1, 1, 1, 1, 1, 1, 0, 1, 1],
+        #     [1, 0, 1, 0, 1, 1, 1, 1, 1, 1],
+        #     [1, 1, 1, 0, 1, 1, 1, 1, 1, 1],
+        #     [1, 1, 1, 1, 1, 1, 0, 1, 1, 1],
+        #     [1, 1, 1, 1, 1, 1, 1, 1, 1, 0],
+        #     [1, 0, 1, 1, 1, 1, 1, 1, 1, 1],
+        #     [1, 1, 1, 0, 1, 1, 1, 1, 1, 1]
+        # ])
+
         self.score = 0
         self.lines_cleared = 0
         self.hold_piece = None
@@ -373,7 +396,7 @@ class Tetris:
         total_holes = self.calculate_holes(board)
         bumpiness = self.calculate_bumpiness(board)
 
-        return [lines_cleared, aggregated_height, total_holes, bumpiness]
+        return [lines_cleared, aggregated_height.item(), total_holes, bumpiness]
 
     # DQN
 
