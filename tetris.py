@@ -3,6 +3,7 @@ import cv2
 import numpy as np
 from PIL import Image
 from time import sleep
+import sys
 
 
 class Tetris:
@@ -37,29 +38,6 @@ class Tetris:
         self.board = np.zeros(
             (Tetris.BOARD_HEIGHT, Tetris.BOARD_WIDTH), dtype=int)
 
-        # self.board = np.array([
-        #     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        #     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        #     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        #     [0, 0, 1, 1, 1, 0, 0, 0, 0, 0],
-        #     [0, 1, 1, 1, 1, 0, 0, 0, 0, 0],
-        #     [0, 1, 1, 1, 1, 1, 1, 0, 1, 0],
-        #     [1, 1, 1, 1, 1, 1, 1, 0, 1, 1],
-        #     [1, 1, 1, 1, 1, 1, 1, 1, 1, 0],
-        #     [1, 1, 1, 1, 1, 1, 1, 1, 1, 0],
-        #     [1, 0, 1, 1, 1, 1, 1, 1, 1, 1],
-        #     [1, 1, 1, 1, 1, 1, 1, 0, 1, 1],
-        #     [1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
-        #     [1, 1, 0, 1, 1, 0, 1, 1, 1, 1],
-        #     [1, 1, 1, 1, 1, 1, 1, 0, 1, 1],
-        #     [1, 0, 1, 0, 1, 1, 1, 1, 1, 1],
-        #     [1, 1, 1, 0, 1, 1, 1, 1, 1, 1],
-        #     [1, 1, 1, 1, 1, 1, 0, 1, 1, 1],
-        #     [1, 1, 1, 1, 1, 1, 1, 1, 1, 0],
-        #     [1, 0, 1, 1, 1, 1, 1, 1, 1, 1],
-        #     [1, 1, 1, 0, 1, 1, 1, 1, 1, 1]
-        # ])
-
         self.score = 0
         self.lines_cleared = 0
         self.hold_piece = None
@@ -91,7 +69,14 @@ class Tetris:
         '''Rotates the current piece 90 degrees counterclockwise'''
         rotated_piece = np.rot90(self.curr_piece, k=rotation)
 
-        self.curr_piece = rotated_piece
+        # print(f"Rotated piece: {rotated_piece}")
+        # print(f"Current position: {self.curr_pos}")
+
+        # print(self.curr_pos)
+        if not self.check_horizontal_boundaries(rotated_piece, self.curr_pos):
+            self.curr_piece = rotated_piece
+        # else:
+            # print("FAILED TO ROTATE")
 
 
     def play(self, x_pos, render=False, delay=None):
@@ -105,10 +90,10 @@ class Tetris:
 
         # Drop the Tetromino gradually until it collides
         while not self.check_collision(self.curr_piece, self.curr_pos):
-            if render:
-                self.render()  # Render the game to show the piece moving
-                if delay:
-                    sleep(delay)  # Add a delay to simulate falling
+            # if render:
+            #     self.render()  # Render the game to show the piece moving
+            #     if delay:
+            #         sleep(delay)  # Add a delay to simulate falling
 
             # Increment the Y position to simulate falling
             self.curr_pos[1] += 1
@@ -118,9 +103,8 @@ class Tetris:
 
         # Place the piece on the board
         self.board = self.add_piece(self.curr_piece, self.curr_pos)
-        if self.game_over:
-                return self.score, self.game_over
-
+        # if self.game_over:
+        #         return self.score, self.game_over
 
         if (self.game_over):
             self.reset()
@@ -138,31 +122,68 @@ class Tetris:
         return self.score, self.game_over
 
     def check_collision(self, piece, pos):
-        '''Checks for collisions with the board boundaries and other blocks'''
-
+        """Checks for collisions with the board boundaries and other blocks."""
         piece_height, piece_width = piece.shape
 
-        # Chcek if piece fits horizontally
+        # Check horizontal boundaries
         if pos[0] < 0 or pos[0] + piece_width > Tetris.BOARD_WIDTH:
-            # print(pos[0])
-            # print(piece_width)
+            # print("A")
             return True
 
+        # Check each cell of the piece
         for i in range(piece_height):
             for j in range(piece_width):
-                if piece[i, j] == 1:
+                if piece[i, j] == 1:  # Only check cells that are part of the tetromino
                     board_x = pos[0] + j
                     board_y = pos[1] + i
 
-                    # Check if piece fits on the floor and not outside
+                    # Check if the piece exceeds the bottom of the board
                     if board_y >= Tetris.BOARD_HEIGHT:
+                        # print(f"Collision: Exceeds vertical boundary at ({board_x}, {board_y}).")
                         return True
 
-                    # Check nearest tile collided
-                    if board_y >= 0 and self.board[board_y, board_x] == 1:
-                        return True  # Collied with a placed tile
+                    # Safely check overlap with the board
+                    if board_y >= 0 and 0 <= board_x < Tetris.BOARD_WIDTH:
+                        if self.board[board_y, board_x] == 1:
+                            # print(f"Collision: Overlaps at ({board_x}, {board_y}).")
+                            # print(f"Board: {self.board[board_y, board_x]}")
+                            
+                            return True
+
+        return False  # No collision detected
+    
+    def check_horizontal_boundaries(self, piece, pos):
+        """Checks if the piece exceeds horizontal boundaries."""
+        _, piece_width = piece.shape
+
+        # Check horizontal boundaries
+        if pos[0] < 0 or pos[0] + piece_width > Tetris.BOARD_WIDTH:
+            # print(f"Rotation would exceed horizontal boundaries at column {pos[0]}.")
+            return True
 
         return False
+
+    def check_vertical_boundary(self, piece, pos):
+        """
+        Checks if placing the piece reaches above the vertical boundary (game over condition).
+        """
+        piece_height, piece_width = piece.shape
+
+        for i in range(piece_height):
+            for j in range(piece_width):
+                if piece[i, j] == 1:  # Only check filled cells
+                    # print(pos[1], i)
+                    board_y = pos[1] + i
+
+                    # Check if the piece is above the board
+                    if board_y < 0:
+                        # print(f"Game Over: Piece extends above the board at row {board_y}.")
+                        return True
+
+        return False
+
+
+
 
     def add_piece(self, piece, pos):
         '''Adds the piece to the board at the given position'''
@@ -177,7 +198,7 @@ class Tetris:
                         board[pos[1] + i, pos[0] + j] = 1
 
             # Check game over condition
-            if self.check_collision(self.curr_piece, self.curr_pos):
+            if self.check_vertical_boundary(self.curr_piece, self.curr_pos):
                 self.game_over = True
 
             return board
@@ -307,10 +328,14 @@ class Tetris:
         # Itearate all 4 rotations including 0 rotation
         for rotation in range(4):
 
+            # print(states)
+
             if np.array_equal(self.curr_piece, Tetris.TETROMINOS[0]) and rotation > 1:
                 continue
 
             rotated_piece = np.rot90(self.curr_piece, rotation)
+
+            # print(rotated_piece)
 
             # Place piece in every column and calculate the board state
 
@@ -319,10 +344,13 @@ class Tetris:
                 temp_board = self.board.copy()
                 pos = [col, 0]
 
+                # print(pos)
                 # Drop piece until collision
                 while not self.check_collision(rotated_piece, pos):
                     pos[1] += 1
+                    # print(pos[1])
                 pos[1] -= 1  # Move back up after the collision
+
 
                 # Check if final position is valid
                 if not self.check_collision(rotated_piece, pos):
@@ -396,56 +424,128 @@ class Tetris:
 if __name__ == "__main__":
     game = Tetris()
 
-    # board1 = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #           [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #           [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #           [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #           [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #           [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #           [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #           [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #           [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #           [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #           [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #           [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #           [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #           [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #           [0, 0, 0, 0, 1, 1, 0, 0, 0, 0],
-    #           [0, 1, 1, 1, 1, 1, 1, 0, 0, 1],
-    #           [0, 1, 1, 0, 1, 1, 1, 1, 1, 1],
-    #           [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-    #           [1, 1, 1, 0, 1, 1, 1, 1, 1, 1],
-    #           [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]]
 
     board1 = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
-                [1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
-                [1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
-                [1, 1, 1, 1, 1, 1, 1, 1, 0, 1]]
+              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+              [0, 0, 0, 0, 0, 1, 1, 0, 0, 0],
+              [0, 0, 0, 0, 1, 1, 1, 1, 0, 0],
+              [0, 0, 1, 1, 1, 1, 1, 1, 0, 0],
+    ]
 
-    game.set_board(board1)
-    game.set_curr(6)
-    print(game.curr_piece)
-    print(game.board)
-    game.rotate_piece(1)
-    print(game.curr_piece)
+    board2 = [
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 1, 1, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 1, 1, 0, 0, 0, 0],
+    [0, 0, 0, 1, 1, 1, 0, 0, 0, 0],
+    [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+    [1, 0, 1, 1, 1, 0, 0, 0, 0, 0],
+    [1, 1, 1, 0, 0, 0, 0, 1, 0, 0],
+    [1, 1, 1, 1, 0, 0, 1, 1, 0, 0],
+    [0, 1, 1, 1, 0, 0, 1, 0, 0, 0],
+    [1, 1, 0, 0, 0, 0, 1, 1, 0, 0],
+    [1, 1, 1, 1, 0, 0, 1, 1, 0, 0],
+    [0, 0, 0, 1, 1, 1, 1, 0, 0, 0],
+    [0, 0, 1, 1, 0, 0, 0, 0, 0, 0],
+    [0, 1, 1, 1, 0, 0, 0, 0, 1, 0],
+    [0, 1, 1, 1, 0, 0, 0, 1, 1, 0],
+    [0, 0, 1, 1, 0, 0, 0, 1, 1, 0],
+    [0, 1, 1, 1, 1, 1, 0, 0, 1, 1],
+    [0, 0, 0, 0, 0, 1, 0, 0, 1, 0]
+    ]
+
+    # board1 = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    #             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    #             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    #             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    #             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    #             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    #             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    #             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    #             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    #             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    #             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    #             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    #             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    #             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    #             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    #             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    #             [1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
+    #             [1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
+    #             [1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
+    #             [1, 1, 1, 1, 1, 1, 1, 1, 0, 1]]
+
+    # game.set_board(board1)
+    # game.set_curr(0)
+    # print(game.curr_piece)
+    # # print(game.board)
+    # game.rotate_piece(3)
+    # print("ROTATED PIECE", game.curr_piece)
+    # print(np.rot90(game.curr_piece, 1))
+    # print(game.curr_piece)
     # print(game.get_next_states())
-    # game.board = game.add_piece(game.curr_piece, [8,16])
+    # game.board = game.add_piece(game.curr_piece, [9,16])
+    # game.play(5)
+    # print(game.board)
     # print(game.update_score())
     # print(game.get_board_properties(game.board))
     # print(game.get_next_states())
+
+    # game = Tetris()
+    # game.set_board([
+    #     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    #     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    #     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    #     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    #     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    #     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    #     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    #     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    #     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    #     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    #     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    #     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    #     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    #     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    #     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    #     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    #     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    #     [0, 0, 0, 0, 0, 0, 0, 1, 0, 0],
+    #     [0, 0, 0, 0, 0, 0, 1, 1, 1, 1],
+    #     [0, 0, 0, 0, 0, 1, 1, 1, 0, 0],
+    # ])
+
+
+    game.set_board(board2)
+    print(game.board)
+    # # Set the I-piece and rotate it vertically
+    game.set_curr(0)  # I-piece
+    print(game.get_piece())
+    # print(game.get_next_states())
+    print("BEFORE", game.curr_piece)
+    game.rotate_piece(1)  # Rotate to vertical orientation
+
+    print("ROTATED", game.curr_piece)
+    # print(game.board)
+    # Test collision at column 9
+    # print(game.check_collision(game.curr_piece, [9, 0]))  # Should return False (no collision)
+    score, done = game.play(3)
+    print(game.board)
+    print(done)
+    # print(game.check_collision(game.curr_piece, [8, 17]))  # Should return True (collision)

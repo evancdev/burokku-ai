@@ -1,6 +1,8 @@
 from keras import Model
 from keras import Sequential
 from keras.layers import Dense
+from keras.layers import Input
+from keras.models import Model
 from collections import deque
 import numpy as np
 import random
@@ -50,18 +52,28 @@ class DQNAgent:
     def build_model(self):
         """Builds a Keras deep neural network model"""
 
-        model = Sequential()
-        model.add(Dense(
-            self.n_neurons[0], input_dim=self.state_size, activation=self.activations[0]))
-
+        
+        # Create an Input layer
+        inputs = Input(shape=(self.state_size,))
+        
+        # First hidden layer
+        x = Dense(self.n_neurons[0], activation=self.activations[0])(inputs)
+        
+        # Add subsequent hidden layers
         for i in range(1, len(self.n_neurons)):
-            model.add(Dense(self.n_neurons[i], activation=self.activations[i]))
-
-        model.add(Dense(1, activation=self.activations[-1]))
-
+            x = Dense(self.n_neurons[i], activation=self.activations[i])(x)
+        
+        # Output layer
+        outputs = Dense(1, activation=self.activations[-1])(x)
+        
+        # Create the model
+        model = Model(inputs=inputs, outputs=outputs)
+        
+        # Compile the model
         model.compile(loss=self.loss_fun, optimizer=self.optimizer)
-
+        
         return model
+
 
     def predict_output(self, state):
         """

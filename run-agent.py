@@ -2,6 +2,7 @@ from agent import DQNAgent
 from tetris import Tetris
 from heuristic import TetrisAI
 from tqdm import tqdm
+import numpy as np
 
 
 class AgentParam:
@@ -47,25 +48,32 @@ def run_dqn(agentparam: AgentParam):
         done = False
         step = 0
 
+        print(f"Episode {episode + 1}/{agentparam.episodes}")
+        
         while not done and (agentparam.max_steps != 0 or step < agentparam.max_steps):
             next_states = tetris.get_next_states()
 
-            if next_states == {}:
+            if not next_states:
+                print("No next states available. Ending episode.")
                 break
 
             best_state = agent.get_best_state(list(next_states.keys()))
-            # print("BEST ACTION", best_action)
-            # print("0TH INDEX", best_action[0])
-            # print("BEFORE")
-            # print(tetris.curr_piece)
+            if best_state is None:
+                print("Agent failed to select a valid state.")
+                break
+
             tetris.rotate_piece(best_state[1])
-            # print("ROTATED")
-            # print(tetris.curr_piece)
-            reward, done = tetris.play(best_state[0], render=True)
+            reward, done = tetris.play(best_state[0], render=False)
+            
             agent.remember(curr_state, best_state, reward, done)
             curr_state = best_state
             step += 1
+
+        print(f"Training on episode {episode + 1}")
         agent.train(batch_size=agentparam.batch_size, epochs=agentparam.epochs)
+
+
+
 
 
 if __name__ == "__main__":

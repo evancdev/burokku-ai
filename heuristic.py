@@ -108,5 +108,5 @@ if __name__ == "__main__":
     ai = TetrisAI(game)
 
     while not game.game_over:
-        ai.ai_play(render=True)
+        ai.ai_play(render=False)
     print("Game Over. Final Score:", game.score)
