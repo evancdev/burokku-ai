@@ -391,12 +391,15 @@ class Tetris:
         Returns all statistics of curent board and properties
         """
 
-        lines_cleared, _ = self.clean_rows(board)
+        lines_cleared = self.lines_cleared
         aggregated_height = self.calculate_aggregated_height(board)
         total_holes = self.calculate_holes(board)
         bumpiness = self.calculate_bumpiness(board)
 
-        return [lines_cleared, aggregated_height.item(), total_holes, bumpiness]
+        if aggregated_height != 0:
+            aggregated_height = aggregated_height.item()
+
+        return [lines_cleared, aggregated_height, total_holes, bumpiness]
 
     # DQN
 
@@ -493,82 +496,31 @@ if __name__ == "__main__":
     [0, 0, 0, 0, 0, 1, 0, 0, 1, 0]
     ]
 
-    # board1 = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #             [1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
-    #             [1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
-    #             [1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
-    #             [1, 1, 1, 1, 1, 1, 1, 1, 0, 1]]
+    board3 = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
+                [1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
+                [1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
+                [1, 1, 1, 1, 1, 1, 1, 1, 0, 1]]
 
-    # game.set_board(board1)
-    # game.set_curr(0)
-    # print(game.curr_piece)
-    # # print(game.board)
-    # game.rotate_piece(3)
-    # print("ROTATED PIECE", game.curr_piece)
-    # print(np.rot90(game.curr_piece, 1))
-    # print(game.curr_piece)
-    # print(game.get_next_states())
-    # game.board = game.add_piece(game.curr_piece, [9,16])
-    # game.play(5)
-    # print(game.board)
-    # print(game.update_score())
-    # print(game.get_board_properties(game.board))
-    # print(game.get_next_states())
+    game.set_board(board3)
+    game.set_curr(0)
+    print(game.get_next_states())
+    game.rotate_piece(1)
+    game.play(8)
+    print(game.get_board_properties(game.board))
 
-    # game = Tetris()
-    # game.set_board([
-    #     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #     [0, 0, 0, 0, 0, 0, 0, 1, 0, 0],
-    #     [0, 0, 0, 0, 0, 0, 1, 1, 1, 1],
-    #     [0, 0, 0, 0, 0, 1, 1, 1, 0, 0],
-    # ])
-
-
-    game.set_board(board2)
-    print(game.board)
-    # # Set the I-piece and rotate it vertically
-    game.set_curr(0)  # I-piece
-    print(game.get_piece())
-    # print(game.get_next_states())
-    print("BEFORE", game.curr_piece)
-    game.rotate_piece(1)  # Rotate to vertical orientation
-
-    print("ROTATED", game.curr_piece)
-    # print(game.board)
-    # Test collision at column 9
-    # print(game.check_collision(game.curr_piece, [9, 0]))  # Should return False (no collision)
-    score, done = game.play(3)
-    print(game.board)
-    print(done)
-    # print(game.check_collision(game.curr_piece, [8, 17]))  # Should return True (collision)

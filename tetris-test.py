@@ -46,6 +46,27 @@ class TestClass(unittest.TestCase):
               [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
               [1, 1, 1, 0, 1, 1, 1, 1, 1, 1],
               [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]]
+    
+    board2 = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
+                [1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
+                [1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
+                [1, 1, 1, 1, 1, 1, 1, 1, 0, 1]]
 
     def test_calculate_bumpiness(self):
         game = Tetris()
@@ -71,6 +92,16 @@ class TestClass(unittest.TestCase):
         board = game.board
         rows_cleaned, _ = Tetris.clean_rows(game, board)
         self.assertEqual(2, rows_cleaned)
+    
+    def test_get_board_properties(self):
+        game = Tetris()
+        game.set_curr(0)
+        game.rotate_piece(1)
+        game.set_board(TestClass.board2)
+        game.play(8)
+        board =  game.board
+        self.assertEqual([4, 0, 0, 0], Tetris.get_board_properties(game, board))
+        
 
 
 if __name__ == "__main__":
