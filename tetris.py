@@ -101,7 +101,6 @@ class Tetris:
         # else:
             # print("FAILED TO ROTATE")
 
-
     def play(self, x_pos, render=False, delay=None):
         '''Handles the game logic for placing pieces'''
 
@@ -134,7 +133,8 @@ class Tetris:
             return -1, True
 
         # Update the score based on cleared rows
-        self.update_score()
+        cleared_rows = self.update_score()
+        reward = 1 + (cleared_rows ** 2) * Tetris.BOARD_WIDTH
 
         # Spawn the next piece
         self.spawn_piece()
@@ -142,7 +142,7 @@ class Tetris:
         if render:
             self.render()
 
-        return self.score, self.game_over
+        return reward, self.game_over
 
     def check_collision(self, piece, pos):
         """Checks for collisions with the board boundaries and other blocks."""
@@ -170,11 +170,11 @@ class Tetris:
                         if self.board[board_y, board_x] == 1:
                             # print(f"Collision: Overlaps at ({board_x}, {board_y}).")
                             # print(f"Board: {self.board[board_y, board_x]}")
-                            
+
                             return True
 
         return False  # No collision detected
-    
+
     def check_horizontal_boundaries(self, piece, pos):
         """Checks if the piece exceeds horizontal boundaries."""
         _, piece_width = piece.shape
@@ -204,9 +204,6 @@ class Tetris:
                         return True
 
         return False
-
-
-
 
     def add_piece(self, piece, pos):
         '''Adds the piece to the board at the given position'''
@@ -239,6 +236,8 @@ class Tetris:
         self.board = board
         if full_rows:
             self.score += 1 * (2 ** (full_rows - 1))
+
+        return full_rows
 
     def clean_rows(self, board):
         '''Clears full rows and shifts the rest down'''
@@ -348,8 +347,6 @@ class Tetris:
 
         states = {}
 
-
-
         # Itearate all 4 rotations including 0 rotation
         for rotation in range(4):
 
@@ -376,7 +373,6 @@ class Tetris:
                     # print(pos[1])
                 pos[1] -= 1  # Move back up after the collision
 
-
                 # Check if final position is valid
                 if not self.check_collision(rotated_piece, pos):
 
@@ -387,8 +383,8 @@ class Tetris:
                     temp_game.play(pos[0])
 
                     # Add to possible states
-                    states[(col, rotation)] = temp_game.get_board_properties(temp_game.board)
-
+                    states[(col, rotation)] = temp_game.get_board_properties(
+                        temp_game.board)
 
         return states
 
@@ -396,7 +392,7 @@ class Tetris:
         """
         Returns all statistics of curent board and properties
         """
-        
+
         lines_cleared = self.lines_cleared
         aggregated_height = self.calculate_aggregated_height(board)
         total_holes = self.calculate_holes(board)
@@ -456,7 +452,6 @@ class Tetris:
 if __name__ == "__main__":
     game = Tetris()
 
-
     board1 = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
               [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
               [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -477,51 +472,51 @@ if __name__ == "__main__":
               [0, 0, 0, 0, 0, 1, 1, 0, 0, 0],
               [0, 0, 0, 0, 1, 1, 1, 1, 0, 0],
               [0, 0, 1, 1, 1, 1, 1, 1, 0, 0],
-    ]
+              ]
 
     board2 = [
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 1, 1, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 1, 1, 0, 0, 0, 0],
-    [0, 0, 0, 1, 1, 1, 0, 0, 0, 0],
-    [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
-    [1, 0, 1, 1, 1, 0, 0, 0, 0, 0],
-    [1, 1, 1, 0, 0, 0, 0, 1, 0, 0],
-    [1, 1, 1, 1, 0, 0, 1, 1, 0, 0],
-    [0, 1, 1, 1, 0, 0, 1, 0, 0, 0],
-    [1, 1, 0, 0, 0, 0, 1, 1, 0, 0],
-    [1, 1, 1, 1, 0, 0, 1, 1, 0, 0],
-    [0, 0, 0, 1, 1, 1, 1, 0, 0, 0],
-    [0, 0, 1, 1, 0, 0, 0, 0, 0, 0],
-    [0, 1, 1, 1, 0, 0, 0, 0, 1, 0],
-    [0, 1, 1, 1, 0, 0, 0, 1, 1, 0],
-    [0, 0, 1, 1, 0, 0, 0, 1, 1, 0],
-    [0, 1, 1, 1, 1, 1, 0, 0, 1, 1],
-    [0, 0, 0, 0, 0, 1, 0, 0, 1, 0]
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 1, 1, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 1, 1, 0, 0, 0, 0],
+        [0, 0, 0, 1, 1, 1, 0, 0, 0, 0],
+        [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+        [1, 0, 1, 1, 1, 0, 0, 0, 0, 0],
+        [1, 1, 1, 0, 0, 0, 0, 1, 0, 0],
+        [1, 1, 1, 1, 0, 0, 1, 1, 0, 0],
+        [0, 1, 1, 1, 0, 0, 1, 0, 0, 0],
+        [1, 1, 0, 0, 0, 0, 1, 1, 0, 0],
+        [1, 1, 1, 1, 0, 0, 1, 1, 0, 0],
+        [0, 0, 0, 1, 1, 1, 1, 0, 0, 0],
+        [0, 0, 1, 1, 0, 0, 0, 0, 0, 0],
+        [0, 1, 1, 1, 0, 0, 0, 0, 1, 0],
+        [0, 1, 1, 1, 0, 0, 0, 1, 1, 0],
+        [0, 0, 1, 1, 0, 0, 0, 1, 1, 0],
+        [0, 1, 1, 1, 1, 1, 0, 0, 1, 1],
+        [0, 0, 0, 0, 0, 1, 0, 0, 1, 0]
     ]
 
     board3 = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
-                [1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
-                [1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
-                [1, 1, 1, 1, 1, 1, 1, 1, 0, 1]]
+              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+              [1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
+              [1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
+              [1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
+              [1, 1, 1, 1, 1, 1, 1, 1, 0, 1]]
 
     game.set_board(board3)
     game.set_curr(0)
@@ -530,4 +525,3 @@ if __name__ == "__main__":
     game.rotate_piece(1)
     game.play(8)
     print(game.get_board_properties(game.board))
-
