@@ -348,6 +348,8 @@ class Tetris:
 
         states = {}
 
+
+
         # Itearate all 4 rotations including 0 rotation
         for rotation in range(4):
 
@@ -364,23 +366,28 @@ class Tetris:
 
             for col in range(Tetris.BOARD_WIDTH):
                 # Init temporary board as default before evaluating
-                temp_game = Tetris()
+
                 pos = [col, 0]
 
                 # print(pos)
                 # Drop piece until collision
-                while not temp_game.check_collision(rotated_piece, pos):
+                while not self.check_collision(rotated_piece, pos):
                     pos[1] += 1
                     # print(pos[1])
                 pos[1] -= 1  # Move back up after the collision
 
 
                 # Check if final position is valid
-                if not temp_game.check_collision(rotated_piece, pos):
-                    temp_board = temp_game.add_piece(rotated_piece, pos)
+                if not self.check_collision(rotated_piece, pos):
+
+                    temp_game = Tetris()
+                    temp_game.set_board(self.board)
+                    temp_game.curr_piece = rotated_piece
+
+                    temp_game.play(pos[0])
 
                     # Add to possible states
-                    states[(col, rotation)] = temp_game.get_board_properties(temp_board)
+                    states[(col, rotation)] = temp_game.get_board_properties(temp_game.board)
 
 
         return states
@@ -389,8 +396,6 @@ class Tetris:
         """
         Returns all statistics of curent board and properties
         """
-
-        temp_board = self.clean_rows(board)
         
         lines_cleared = self.lines_cleared
         aggregated_height = self.calculate_aggregated_height(board)
