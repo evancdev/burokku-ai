@@ -76,6 +76,8 @@ class Tetris:
         self.game_over = False
         self.spawn_piece()
 
+        return self.get_board_properties(self.board)
+
     def spawn_piece(self):
         '''Spawns the next piece'''
 
@@ -129,12 +131,15 @@ class Tetris:
         #         return self.score, self.game_over
 
         if (self.game_over):
-            self.reset()
-            return -1, True
+            return self.get_score()-2, True
 
         # Update the score based on cleared rows
-        cleared_rows = self.update_score()
-        reward = 1 + (cleared_rows ** 2) * Tetris.BOARD_WIDTH
+
+        full_rows, board = self.clean_rows(self.board)
+        self.board = board
+        # cleared_rows = self.update_score()
+        reward = 1 + (full_rows ** 2) * Tetris.BOARD_WIDTH
+        self.score += reward
 
         # Spawn the next piece
         self.spawn_piece()
@@ -229,13 +234,14 @@ class Tetris:
             print(self.board)
             print(self.curr_piece)
 
-    def update_score(self):
-        '''Updates score after clearing full rows'''
+    # def update_score(self):
+    #     '''Updates score after clearing full rows'''
 
-        full_rows, board = self.clean_rows(self.board)
-        self.board = board
-        if full_rows:
-            self.score += 1 * (2 ** (full_rows - 1))
+    #     full_rows, board = self.clean_rows(self.board)
+    #     self.board = board
+    #     if full_rows:
+    #         self.score = 1 + (cleared_rows ** 2) * Tetris.BOARD_WIDTH
+
 
         return full_rows
 
@@ -403,28 +409,6 @@ class Tetris:
 
         return [lines_cleared, aggregated_height, total_holes, bumpiness]
 
-    # DQN
-
-    def step(self, action, render=True):
-        x_pos, rotation = action
-        # Check if shape is valid to place based on its width and if it may cross boundaries
-        if x_pos < 0 or x_pos + self.curr_piece.shape[1] > Tetris.BOARD_WIDTH:
-            return
-        self.curr_pos = [x_pos, 0]
-        self.rotate_piece(rotation)
-        while not self.check_collision(self.curr_piece, self.curr_pos):
-            self.curr_pos[1] += 1
-        self.curr_pos[1] -= 1
-        self.board = self.add_piece(self.curr_piece, self.curr_pos)
-        self.update_score()
-        if render:
-            self.render()
-        if not self.game_over:
-            self.spawn_piece()
-        else:
-            self.score -= 2
-        return self.score, self.game_over
-
     def calculate_bumpiness(self, board):
         '''
         Given a board, calculate the difference of heights between two adjacent columns.
@@ -519,9 +503,28 @@ if __name__ == "__main__":
               [1, 1, 1, 1, 1, 1, 1, 1, 0, 1]]
 
     game.set_board(board3)
+    print(game.get_board_properties(game.board))
+
     game.set_curr(0)
-    print(game.curr_piece)
+
     print(game.get_next_states())
     game.rotate_piece(1)
     game.play(8)
     print(game.get_board_properties(game.board))
+    for idx in range(8):
+        game.set_curr(0)
+        game.rotate_piece(1)
+        game.play(idx)
+    
+    game.set_curr(0)
+    game.rotate_piece(1)
+    game.play(9)
+
+
+    print(game.get_board_properties(game.board))
+    game.set_curr(0)
+    print(game.get_next_states())
+
+
+    # game.set_board(board3)
+    # game.set_curr(0)

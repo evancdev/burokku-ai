@@ -2,7 +2,7 @@ from keras import Model
 from keras import Sequential
 from keras.layers import Dense
 from keras.layers import Input
-from keras.models import Model
+from keras.models import Model, load_model
 from collections import deque
 import numpy as np
 import random
@@ -30,7 +30,7 @@ class DQNAgent:
 
     def __init__(self, state_size, buffer_size, batch_size,
                  discount, epsilon, epsilon_min, epsilon_stop_episode,
-                 n_neurons, activations, loss_fun, optimizer, replay_start_size):
+                 n_neurons, activations, loss_fun, optimizer, replay_start_size, trained_model = None):
 
         self.discount = discount
         self.state_size = state_size
@@ -47,7 +47,11 @@ class DQNAgent:
         self.optimizer = optimizer
         self.replay_start_size = replay_start_size
 
-        self.model = self.build_model()
+        if trained_model is not None:
+            print(f"Loading model {trained_model}")
+            self.model = load_model(trained_model)
+        else:
+            self.model = self.build_model()
 
     def build_model(self):
         """Builds a Keras deep neural network model"""
@@ -131,8 +135,9 @@ class DQNAgent:
     def train(self, batch_size=32, epochs=3):
         """Samples batch of experiences and train them"""
         n = len(self.mem)
-
         if n >= self.replay_start_size and n >= batch_size:
+
+            print("called train")
 
             batch = random.sample(self.mem, batch_size)
 
@@ -160,8 +165,10 @@ class DQNAgent:
                 Y.append(new_q_value)
 
             # Fit model
-            self.model.fit(np.array(X), np.array(
+            history = self.model.fit(np.array(X), np.array(
                 Y), batch_size=batch_size, epochs=epochs, verbose=0)
+            
+            print(f"Training loss: {history.history['loss']}")
 
             # Update epsilon
             if self.epsilon > self.epsilon_min:
