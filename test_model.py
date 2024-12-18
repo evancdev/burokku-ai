@@ -22,7 +22,8 @@ done = False
 
 while True:
   if done:
-     tetris.reset()
+    print(f"Final Score: {tetris.get_score()}")
+    tetris.reset()
     
   next_states = tetris.get_next_states()
   best_state = agent.get_best_state(next_states.values())
@@ -33,5 +34,4 @@ while True:
           break
   tetris.rotate_piece(best_action[1])
   reward, done = tetris.play(best_action[0], render=True)
-  print(f"Final Score: {tetris.get_score()}")
 

@@ -114,10 +114,10 @@ class Tetris:
 
         # Drop the Tetromino gradually until it collides
         while not self.check_collision(self.curr_piece, self.curr_pos):
-            # if render:
-            #     self.render()  # Render the game to show the piece moving
-            #     if delay:
-            #         sleep(delay)  # Add a delay to simulate falling
+            if render:
+                self.render()  # Render the game to show the piece moving
+                if delay:
+                    sleep(delay)  # Add a delay to simulate falling
 
             # Increment the Y position to simulate falling
             self.curr_pos[1] += 1
