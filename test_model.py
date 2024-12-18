@@ -3,6 +3,7 @@ from tetris import Tetris
 
 model_name = "trained_model.keras"
 tetris = Tetris()
+
 agent = DQNAgent(
         discount = 0.98,
         state_size = 4,
@@ -32,4 +33,5 @@ while True:
           break
   tetris.rotate_piece(best_action[1])
   reward, done = tetris.play(best_action[0], render=True)
+  print(f"Final Score: {tetris.get_score()}")
 
