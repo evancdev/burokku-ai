@@ -77,7 +77,7 @@ def run_dqn(agentparam: AgentParam, save_model):
             if episode >= 1000:
                 render = True
             tetris.rotate_piece(best_action[1])
-            reward, done = tetris.play(best_action[0], render=True)
+            reward, done = tetris.play(best_action[0], render)
             
             agent.remember(curr_state, next_states[best_action], reward, done)
             curr_state = next_states[best_action]
@@ -107,4 +107,4 @@ def run_dqn(agentparam: AgentParam, save_model):
 
 if __name__ == "__main__":
     agentparam = AgentParam()
-    run_dqn(agentparam, False)
+    run_dqn(agentparam, True)
