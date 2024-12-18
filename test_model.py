@@ -1,7 +1,7 @@
 from agent import DQNAgent
 from tetris import Tetris
 
-model_name = "trained_model.keras"
+model_name = "best_model.keras"
 tetris = Tetris()
 
 agent = DQNAgent(
