@@ -117,7 +117,7 @@ Burokku-AI/
 ├── test_model.py      # Testing script for trained models
 ├── tetris-test.py     # Heuristic AI testing
 ├── requirements.txt   # Python dependencies
-└── README.md         # This file
+└── README.md          # This file
 ```
 
 ## Model Performance
