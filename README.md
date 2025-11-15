@@ -53,13 +53,7 @@ This project implements an AI agent that learns to play Tetris using deep reinfo
 
 ### Installation
 
-1. Clone the repository:
-```bash
-git clone https://github.com/yourusername/Burokku-AI.git
-cd Burokku-AI
-```
-
-2. Install dependencies:
+Install dependencies:
 ```bash
 pip install -r requirements.txt
 ```
@@ -134,11 +128,3 @@ The DQN agent is trained to maximize score by:
 - Maintaining flat board surface (low bumpiness)
 
 Training progress is displayed with score tracking and best model saving when performance thresholds are exceeded.
-
-## Future Enhancements
-
-- Implement Double DQN for improved stability
-- Add prioritized experience replay
-- Experiment with different network architectures
-- Multi-threaded training for faster convergence
-- Hyperparameter optimization
